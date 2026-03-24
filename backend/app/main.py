@@ -3,16 +3,19 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from api.routes.health import router as health_router
-from core.config import settings
-from db.mongodb import close_db, connect_db
+from app.api.routes.health import router as health_router
+from app.core.config import settings
+from app.db.mongodb import close_mongo, connect_mongo
+from app.db.postgresql import close_postgres, connect_postgres
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await connect_db()
+    await connect_mongo()
+    await connect_postgres()
     yield
-    await close_db()
+    await close_mongo()
+    await close_postgres()
 
 
 app = FastAPI(

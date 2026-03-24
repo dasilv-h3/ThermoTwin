@@ -1,8 +1,16 @@
 fastapi==0.115.12
 uvicorn[standard]==0.34.2
-motor==3.7.0
 pydantic-settings==2.9.1
 python-dotenv==1.1.0
+
+# MongoDB (ODM)
+motor==3.7.0
+beanie==1.29.0
+
+# PostgreSQL (ORM)
+sqlalchemy[asyncio]==2.0.41
+psycopg[binary]==3.3.3
+alembic==1.15.2
 
 # Dev / Test
 pytest==8.3.5
