@@ -13,6 +13,12 @@ class Settings(BaseSettings):
     # PostgreSQL
     POSTGRES_URL: str = "postgresql+psycopg://thermotwin:thermotwin@localhost:5432/thermotwin"
 
+    # JWT
+    JWT_SECRET: str = "change-me-in-production"
+    JWT_ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 7
+
     model_config = {"env_file": ".env", "extra": "ignore"}
 
 
