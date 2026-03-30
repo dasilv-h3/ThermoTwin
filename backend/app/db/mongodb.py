@@ -1,8 +1,12 @@
+import logging
+
 from beanie import init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo.errors import ServerSelectionTimeoutError
 
 from ..core.config import settings
+
+logger = logging.getLogger("app")
 
 client: AsyncIOMotorClient | None = None
 
@@ -12,9 +16,9 @@ async def connect_mongo(document_models: list | None = None):
     client = AsyncIOMotorClient(settings.MONGO_URL)
     try:
         await client.admin.command("ping")
-        print(f"Connected to MongoDB: {settings.MONGO_DB_NAME}")
+        logger.info("Connected to MongoDB: %s", settings.MONGO_DB_NAME)
     except ServerSelectionTimeoutError:
-        print("Warning: Could not connect to MongoDB on startup")
+        logger.warning("Could not connect to MongoDB on startup")
         return
 
     if document_models:
@@ -28,4 +32,4 @@ async def close_mongo():
     global client
     if client:
         client.close()
-        print("MongoDB connection closed")
+        logger.info("MongoDB connection closed")

@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from collections.abc import AsyncGenerator
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
@@ -6,7 +7,9 @@ from sqlalchemy.orm import DeclarativeBase
 
 from ..core.config import settings
 
-engine = create_async_engine(settings.POSTGRES_URL, echo=settings.DEBUG)
+logger = logging.getLogger("app")
+
+engine = create_async_engine(settings.POSTGRES_URL, echo=False)
 async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 
@@ -24,16 +27,16 @@ async def connect_postgres(retries: int = 5, delay: float = 2):
         try:
             async with engine.begin() as conn:
                 await conn.run_sync(Base.metadata.create_all)
-            print("Connected to PostgreSQL")
+            logger.info("Connected to PostgreSQL")
             return
         except Exception as e:
             if attempt < retries:
-                print(f"PostgreSQL not ready (attempt {attempt}/{retries}), retrying in {delay}s...")
+                logger.warning("PostgreSQL not ready (attempt %s/%s), retrying in %ss...", attempt, retries, delay)
                 await asyncio.sleep(delay)
             else:
-                print(f"Warning: Could not connect to PostgreSQL after {retries} attempts: {e}")
+                logger.error("Could not connect to PostgreSQL after %s attempts: %s", retries, e)
 
 
 async def close_postgres():
     await engine.dispose()
-    print("PostgreSQL connection closed")
+    logger.info("PostgreSQL connection closed")
