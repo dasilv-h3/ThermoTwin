@@ -16,16 +16,8 @@ export default function TabNavigator() {
         headerShown: false,
       }}
     >
-      <Tab.Screen
-        name="Home"
-        component={HomeScreen}
-        options={{ title: 'Accueil' }}
-      />
-      <Tab.Screen
-        name="Settings"
-        component={SettingsScreen}
-        options={{ title: 'Paramètres' }}
-      />
+      <Tab.Screen name="Home" component={HomeScreen} options={{ title: 'Accueil' }} />
+      <Tab.Screen name="Settings" component={SettingsScreen} options={{ title: 'Paramètres' }} />
     </Tab.Navigator>
   );
 }
