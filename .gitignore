@@ -28,5 +28,29 @@ htmlcov/
 Thumbs.db
 ~$*
 
+# Node
+node_modules/
+package-lock.json
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# Native builds
+ios/
+android/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.tsbuildinfo
+
+# Metro
+.metro-health-check*
+
 # Docker
 mongo_data/

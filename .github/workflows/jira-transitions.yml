@@ -1,0 +1,41 @@
+name: Jira Transitions
+
+on:
+  pull_request:
+    types: [opened, reopened, closed]
+    branches: [main, develop]
+
+jobs:
+  transition:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract Jira key from PR title
+        id: jira
+        run: |
+          KEY=$(echo "${{ github.event.pull_request.title }}" | grep -oE '[A-Z]+-[0-9]+' | head -1)
+          echo "key=$KEY" >> "$GITHUB_OUTPUT"
+
+      - name: Transition to IN REVIEW
+        if: >-
+          (github.event.action == 'opened' || github.event.action == 'reopened')
+          && steps.jira.outputs.key != ''
+        run: |
+          curl -s -X POST \
+            -u "${{ secrets.JIRA_EMAIL }}:${{ secrets.JIRA_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{"transition":{"id":"2"}}' \
+            "${{ secrets.JIRA_URL }}/rest/api/2/issue/${{ steps.jira.outputs.key }}/transitions"
+          echo "Transitioned ${{ steps.jira.outputs.key }} → IN REVIEW"
+
+      - name: Transition to DONE
+        if: >-
+          github.event.action == 'closed'
+          && github.event.pull_request.merged == true
+          && steps.jira.outputs.key != ''
+        run: |
+          curl -s -X POST \
+            -u "${{ secrets.JIRA_EMAIL }}:${{ secrets.JIRA_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{"transition":{"id":"31"}}' \
+            "${{ secrets.JIRA_URL }}/rest/api/2/issue/${{ steps.jira.outputs.key }}/transitions"
+          echo "Transitioned ${{ steps.jira.outputs.key }} → DONE"
