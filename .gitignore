@@ -54,3 +54,6 @@ android/
 
 # Docker
 mongo_data/
+
+# Node
+node_modules/
