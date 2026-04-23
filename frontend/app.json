@@ -13,7 +13,17 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "ThermoTwin utilise la caméra pour scanner votre logement en réalité augmentée (ARKit) et détecter les zones de déperdition thermique.",
+        "NSMotionUsageDescription": "ThermoTwin utilise les capteurs de mouvement pour suivre votre position pendant le scan 3D du logement.",
+        "NSLocationWhenInUseUsageDescription": "ThermoTwin localise votre logement pour associer le scan à votre adresse et calculer les données climatiques.",
+        "NSPhotoLibraryAddUsageDescription": "ThermoTwin peut enregistrer les captures et rapports thermiques dans votre galerie."
+      },
+      "requireFullScreen": false,
+      "entitlements": {
+        "com.apple.developer.arkit": true
+      }
     },
     "android": {
       "adaptiveIcon": {
