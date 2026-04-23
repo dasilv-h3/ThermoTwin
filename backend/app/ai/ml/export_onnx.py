@@ -1,9 +1,9 @@
 """
 GPTT-77 - Export modèle ONNX pour inférence optimisée
 """
+import onnx
 import tensorflow as tf
 import tf2onnx
-import onnx
 
 
 def export_to_onnx(model_path: str, output_path: str):

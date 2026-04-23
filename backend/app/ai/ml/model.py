@@ -2,12 +2,11 @@
 GPTT-75 - Training EfficientNetB0 (transfer learning)
 GPTT-76 - Validation cross-validation (target >85%)
 """
-import numpy as np
 from tensorflow.keras.applications import EfficientNetB0
-from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Dense, GlobalAveragePooling2D, Dropout
-from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import EarlyStopping
+from tensorflow.keras.layers import Dense, Dropout, GlobalAveragePooling2D
+from tensorflow.keras.models import Model
+from tensorflow.keras.optimizers import Adam
 
 
 def build_model(num_classes: int = 7) -> Model:

@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import Dict, List
 
 # Règles métier : priorité isolation (combles > murs > fenêtres)
 TRAVAUX_PRIORITY = {

@@ -1,15 +1,15 @@
 """Service de gestion des scans thermiques - ThermoTwin"""
 
-import uuid
 import logging
+import uuid
 from datetime import datetime
-from typing import Dict, Any, List
-from fastapi import HTTPException, status
+from typing import Any, Dict, List
 
 from app.database import db
+from fastapi import HTTPException, status
+
 from app.ai.analyzer import analyze_thermal_image
 from app.ai.roi_service import enrich_recommendations, generate_action_plan
-from app.ai.report_service import generate_pdf_report
 
 logger = logging.getLogger(__name__)
 
@@ -22,8 +22,8 @@ class ScanService:
 
         # Sauvegarder l'image temporairement
         import base64
-        import tempfile
         import os
+        import tempfile
 
         image_data = image_base64
         if 'base64,' in image_base64:

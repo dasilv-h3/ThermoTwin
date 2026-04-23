@@ -2,11 +2,9 @@
 GPTT-73 - Collecte et gestion du dataset thermique
 Utilise des images publiques pour simuler un dataset DPE
 """
-import os
-import numpy as np
-from PIL import Image
-from typing import Tuple, List
+from typing import Tuple
 
+import numpy as np
 
 # Classes DPE : A=0, B=1, C=2, D=3, E=4, F=5, G=6
 DPE_CLASSES = ['A', 'B', 'C', 'D', 'E', 'F', 'G']

@@ -1,5 +1,5 @@
-from typing import List, Dict
 import math
+from typing import Dict, List
 
 
 def calculate_distance_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
@@ -43,7 +43,10 @@ def score_artisan(artisan: Dict) -> float:
     return round(weighted_rating / distance_penalty, 4)
 
 
-def match_artisans(artisans: List[Dict], user_lat: float, user_lon: float, recommended_works: List[str], budget: float = None) -> List[Dict]:
+def match_artisans(
+    artisans: List[Dict], user_lat: float, user_lon: float,
+    recommended_works: List[str], budget: float = None
+) -> List[Dict]:
     """GPTT-114 — Pipeline complet : filtre localisation + spécialité + scoring → top 5"""
     filtered = filter_by_location(artisans, user_lat, user_lon)
     filtered = filter_by_speciality(filtered, recommended_works)

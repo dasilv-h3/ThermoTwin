@@ -1,9 +1,11 @@
-import os
 import base64
-from groq import Groq
-from dotenv import load_dotenv
-from app.ai.prompts import THERMAL_ANALYSIS_PROMPT
 import json
+import os
+
+from dotenv import load_dotenv
+from groq import Groq
+
+from app.ai.prompts import THERMAL_ANALYSIS_PROMPT
 
 load_dotenv()
 
