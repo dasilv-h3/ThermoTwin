@@ -31,7 +31,25 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.thermotwin.app",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.READ_MEDIA_IMAGES",
+        "android.permission.VIBRATE"
+      ],
+      "config": {
+        "googleMaps": {}
+      },
+      "manifestQueries": {
+        "intent": [
+          {
+            "action": "android.intent.action.VIEW",
+            "data": { "scheme": "https" }
+          }
+        ]
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png"
