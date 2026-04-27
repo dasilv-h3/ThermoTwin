@@ -10,9 +10,6 @@ class Settings(BaseSettings):
     MONGO_URL: str = "mongodb://root:thermotwin@localhost:27017/?authSource=admin"
     MONGO_DB_NAME: str = "thermotwin"
 
-    # PostgreSQL
-    POSTGRES_URL: str = "postgresql+psycopg://thermotwin:thermotwin@localhost:5432/thermotwin"
-
     # JWT
     JWT_SECRET: str = "change-me-in-production"
     JWT_ALGORITHM: str = "HS256"

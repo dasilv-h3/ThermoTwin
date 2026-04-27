@@ -11,8 +11,6 @@ async def test_health_returns_200():
     with (
         patch("app.db.mongodb.connect_mongo", new_callable=AsyncMock),
         patch("app.db.mongodb.close_mongo", new_callable=AsyncMock),
-        patch("app.db.postgresql.connect_postgres", new_callable=AsyncMock),
-        patch("app.db.postgresql.close_postgres", new_callable=AsyncMock),
     ):
         async with AsyncClient(
             transport=ASGITransport(app=app),

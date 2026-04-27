@@ -22,8 +22,6 @@ def db_mocks():
     with (
         patch("app.db.mongodb.connect_mongo", new_callable=AsyncMock),
         patch("app.db.mongodb.close_mongo", new_callable=AsyncMock),
-        patch("app.db.postgresql.connect_postgres", new_callable=AsyncMock),
-        patch("app.db.postgresql.close_postgres", new_callable=AsyncMock),
     ):
         yield
 

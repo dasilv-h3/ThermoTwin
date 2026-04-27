@@ -24,9 +24,7 @@ class RefreshRequest(BaseModel):
 
 
 class UserResponse(BaseModel):
-    id: int
+    id: str
     email: str
     first_name: str
     last_name: str
-
-    model_config = {"from_attributes": True}
