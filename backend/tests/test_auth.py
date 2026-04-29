@@ -1,26 +1,18 @@
 """Tests for auth endpoints: register, login, refresh, me."""
 
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
 from app.core.security import create_access_token, create_refresh_token, hash_password
 
-
 # ---------------------------------------------------------------------------
 # POST /api/auth/register
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.anyio
 async def test_register_success(client):
-    fake_user = MagicMock(
-        id=1,
-        email="new@test.com",
-        first_name="John",
-        last_name="Doe",
-        password_hash=hash_password("Str0ngP@ss!"),
-    )
-
     mock_result = MagicMock()
     mock_result.scalar_one_or_none.return_value = None  # no existing user
 
@@ -37,12 +29,15 @@ async def test_register_success(client):
 
     app.dependency_overrides[get_session] = override_get_session
 
-    response = await client.post("/api/auth/register", json={
-        "email": "new@test.com",
-        "password": "Str0ngP@ss!",
-        "first_name": "John",
-        "last_name": "Doe",
-    })
+    response = await client.post(
+        "/api/auth/register",
+        json={
+            "email": "new@test.com",
+            "password": "Str0ngP@ss!",
+            "first_name": "John",
+            "last_name": "Doe",
+        },
+    )
 
     app.dependency_overrides.clear()
 
@@ -71,12 +66,15 @@ async def test_register_duplicate_email(client):
 
     app.dependency_overrides[get_session] = override_get_session
 
-    response = await client.post("/api/auth/register", json={
-        "email": "existing@test.com",
-        "password": "Str0ngP@ss!",
-        "first_name": "Jane",
-        "last_name": "Doe",
-    })
+    response = await client.post(
+        "/api/auth/register",
+        json={
+            "email": "existing@test.com",
+            "password": "Str0ngP@ss!",
+            "first_name": "Jane",
+            "last_name": "Doe",
+        },
+    )
 
     app.dependency_overrides.clear()
 
@@ -86,26 +84,33 @@ async def test_register_duplicate_email(client):
 
 @pytest.mark.anyio
 async def test_register_invalid_email(client):
-    response = await client.post("/api/auth/register", json={
-        "email": "not-an-email",
-        "password": "Str0ngP@ss!",
-        "first_name": "John",
-        "last_name": "Doe",
-    })
+    response = await client.post(
+        "/api/auth/register",
+        json={
+            "email": "not-an-email",
+            "password": "Str0ngP@ss!",
+            "first_name": "John",
+            "last_name": "Doe",
+        },
+    )
     assert response.status_code == 422
 
 
 @pytest.mark.anyio
 async def test_register_missing_fields(client):
-    response = await client.post("/api/auth/register", json={
-        "email": "test@test.com",
-    })
+    response = await client.post(
+        "/api/auth/register",
+        json={
+            "email": "test@test.com",
+        },
+    )
     assert response.status_code == 422
 
 
 # ---------------------------------------------------------------------------
 # POST /api/auth/login
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.anyio
 async def test_login_success(client):
@@ -130,10 +135,13 @@ async def test_login_success(client):
 
     app.dependency_overrides[get_session] = override_get_session
 
-    response = await client.post("/api/auth/login", json={
-        "email": "user@test.com",
-        "password": password,
-    })
+    response = await client.post(
+        "/api/auth/login",
+        json={
+            "email": "user@test.com",
+            "password": password,
+        },
+    )
 
     app.dependency_overrides.clear()
 
@@ -165,10 +173,13 @@ async def test_login_wrong_password(client):
 
     app.dependency_overrides[get_session] = override_get_session
 
-    response = await client.post("/api/auth/login", json={
-        "email": "user@test.com",
-        "password": "WrongPassword",
-    })
+    response = await client.post(
+        "/api/auth/login",
+        json={
+            "email": "user@test.com",
+            "password": "WrongPassword",
+        },
+    )
 
     app.dependency_overrides.clear()
 
@@ -192,10 +203,13 @@ async def test_login_nonexistent_user(client):
 
     app.dependency_overrides[get_session] = override_get_session
 
-    response = await client.post("/api/auth/login", json={
-        "email": "ghost@test.com",
-        "password": "whatever",
-    })
+    response = await client.post(
+        "/api/auth/login",
+        json={
+            "email": "ghost@test.com",
+            "password": "whatever",
+        },
+    )
 
     app.dependency_overrides.clear()
 
@@ -206,13 +220,17 @@ async def test_login_nonexistent_user(client):
 # POST /api/auth/refresh
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.anyio
 async def test_refresh_success(client):
     refresh_token = create_refresh_token(user_id=1)
 
-    response = await client.post("/api/auth/refresh", json={
-        "refresh_token": refresh_token,
-    })
+    response = await client.post(
+        "/api/auth/refresh",
+        json={
+            "refresh_token": refresh_token,
+        },
+    )
 
     assert response.status_code == 200
     data = response.json()
@@ -224,9 +242,12 @@ async def test_refresh_success(client):
 async def test_refresh_with_access_token_rejected(client):
     access_token = create_access_token(user_id=1)
 
-    response = await client.post("/api/auth/refresh", json={
-        "refresh_token": access_token,
-    })
+    response = await client.post(
+        "/api/auth/refresh",
+        json={
+            "refresh_token": access_token,
+        },
+    )
 
     assert response.status_code == 401
     assert "Invalid token type" in response.json()["detail"]
@@ -234,17 +255,22 @@ async def test_refresh_with_access_token_rejected(client):
 
 @pytest.mark.anyio
 async def test_refresh_with_invalid_token(client):
-    response = await client.post("/api/auth/refresh", json={
-        "refresh_token": "not.a.valid.jwt",
-    })
+    response = await client.post(
+        "/api/auth/refresh",
+        json={
+            "refresh_token": "not.a.valid.jwt",
+        },
+    )
 
     assert response.status_code == 401
 
 
 @pytest.mark.anyio
 async def test_refresh_with_expired_token(client):
-    import jwt as pyjwt
     from datetime import UTC, datetime, timedelta
+
+    import jwt as pyjwt
+
     from app.core.config import settings
 
     expired_payload = {
@@ -255,9 +281,12 @@ async def test_refresh_with_expired_token(client):
     }
     expired_token = pyjwt.encode(expired_payload, settings.JWT_SECRET, algorithm="HS256")
 
-    response = await client.post("/api/auth/refresh", json={
-        "refresh_token": expired_token,
-    })
+    response = await client.post(
+        "/api/auth/refresh",
+        json={
+            "refresh_token": expired_token,
+        },
+    )
 
     assert response.status_code == 401
     assert "expired" in response.json()["detail"].lower()
@@ -266,6 +295,7 @@ async def test_refresh_with_expired_token(client):
 # ---------------------------------------------------------------------------
 # GET /api/auth/me
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.anyio
 async def test_me_success(client):
@@ -291,9 +321,12 @@ async def test_me_success(client):
     app.dependency_overrides[get_session] = override_get_session
 
     token = create_access_token(user_id=1)
-    response = await client.get("/api/auth/me", headers={
-        "Authorization": f"Bearer {token}",
-    })
+    response = await client.get(
+        "/api/auth/me",
+        headers={
+            "Authorization": f"Bearer {token}",
+        },
+    )
 
     app.dependency_overrides.clear()
 
@@ -312,17 +345,23 @@ async def test_me_no_token(client):
 
 @pytest.mark.anyio
 async def test_me_invalid_token(client):
-    response = await client.get("/api/auth/me", headers={
-        "Authorization": "Bearer invalid.jwt.token",
-    })
+    response = await client.get(
+        "/api/auth/me",
+        headers={
+            "Authorization": "Bearer invalid.jwt.token",
+        },
+    )
     assert response.status_code == 401
 
 
 @pytest.mark.anyio
 async def test_me_with_refresh_token_rejected(client):
     refresh_token = create_refresh_token(user_id=1)
-    response = await client.get("/api/auth/me", headers={
-        "Authorization": f"Bearer {refresh_token}",
-    })
+    response = await client.get(
+        "/api/auth/me",
+        headers={
+            "Authorization": f"Bearer {refresh_token}",
+        },
+    )
     assert response.status_code == 401
     assert "Invalid token type" in response.json()["detail"]

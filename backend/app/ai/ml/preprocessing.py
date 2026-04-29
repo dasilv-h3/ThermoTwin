@@ -1,13 +1,14 @@
 """
 GPTT-74 - Preprocessing et augmentation du dataset thermique
 """
+
 import numpy as np
 from tensorflow.keras.utils import to_categorical
 
 
 def normalize(X: np.ndarray) -> np.ndarray:
     """Normalisation pixel [0-255] -> [0-1]"""
-    return X.astype('float32') / 255.0
+    return X.astype("float32") / 255.0
 
 
 def augment(X: np.ndarray) -> np.ndarray:
@@ -38,5 +39,6 @@ def preprocess(X_train, X_test, y_train, y_test, num_classes=7):
 
 if __name__ == "__main__":
     from app.ai.ml.dataset import load_dataset
+
     X_train, X_test, y_train, y_test = load_dataset()
     X_train, X_test, y_train, y_test = preprocess(X_train, X_test, y_train, y_test)

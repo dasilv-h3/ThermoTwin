@@ -53,13 +53,15 @@ def enrich_recommendations(recommendations: List[Dict]) -> List[Dict]:
         roi_score = calculate_roi_score(savings, cost)
         priority = get_priority(rec.get("title", ""))
 
-        enriched.append({
-            **rec,
-            "roi_score": roi_score,
-            "priority": priority,
-            "roi_years": roi_years,
-            "payback_label": f"Remboursé en {roi_years:.1f} ans" if roi_years > 0 else "N/A"
-        })
+        enriched.append(
+            {
+                **rec,
+                "roi_score": roi_score,
+                "priority": priority,
+                "roi_years": roi_years,
+                "payback_label": f"Remboursé en {roi_years:.1f} ans" if roi_years > 0 else "N/A",
+            }
+        )
 
     # Trier par priorité métier d'abord, puis par ROI score décroissant
     enriched.sort(key=lambda x: (x["priority"], -x["roi_score"]))
@@ -79,7 +81,7 @@ def generate_action_plan(recommendations: List[Dict], budget: float = None) -> D
             "plan": enriched,
             "total_cost": sum(r["cost"] for r in enriched),
             "total_savings": sum(r["savings"] for r in enriched),
-            "budget_used": None
+            "budget_used": None,
         }
 
     # Sélection selon budget
@@ -96,5 +98,5 @@ def generate_action_plan(recommendations: List[Dict], budget: float = None) -> D
         "total_cost": sum(r["cost"] for r in selected),
         "total_savings": sum(r["savings"] for r in selected),
         "budget_used": budget - budget_remaining,
-        "budget_remaining": budget_remaining
+        "budget_remaining": budget_remaining,
     }

@@ -1,10 +1,11 @@
 """Tests for core security utilities: hashing, JWT creation/decoding."""
 
-import pytest
 from datetime import UTC, datetime, timedelta
 
 import jwt as pyjwt
+import pytest
 
+from app.core.config import settings
 from app.core.security import (
     create_access_token,
     create_refresh_token,
@@ -12,12 +13,11 @@ from app.core.security import (
     hash_password,
     verify_password,
 )
-from app.core.config import settings
-
 
 # ---------------------------------------------------------------------------
 # Password hashing
 # ---------------------------------------------------------------------------
+
 
 def test_hash_password_returns_bcrypt_hash():
     hashed = hash_password("MySecret123")
@@ -44,6 +44,7 @@ def test_verify_password_wrong():
 # JWT access tokens
 # ---------------------------------------------------------------------------
 
+
 def test_create_access_token_decodable():
     token = create_access_token(user_id=42)
     payload = decode_token(token)
@@ -61,6 +62,7 @@ def test_access_token_expires_in_future():
 # ---------------------------------------------------------------------------
 # JWT refresh tokens
 # ---------------------------------------------------------------------------
+
 
 def test_create_refresh_token_decodable():
     token = create_refresh_token(user_id=99)
@@ -80,6 +82,7 @@ def test_refresh_token_longer_expiry_than_access():
 # ---------------------------------------------------------------------------
 # Token decoding edge cases
 # ---------------------------------------------------------------------------
+
 
 def test_decode_expired_token_raises():
     expired = pyjwt.encode(
