@@ -11,7 +11,7 @@ from app.schemas.auth import RegisterRequest, TokenResponse
 
 
 async def register_user(data: RegisterRequest) -> TokenResponse:
-    existing = await User.find_one(User.email == data.email)
+    existing = await User.find_one({"email": data.email})
     if existing:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -34,7 +34,7 @@ async def register_user(data: RegisterRequest) -> TokenResponse:
 
 
 async def login_user(email: str, password: str) -> TokenResponse:
-    user = await User.find_one(User.email == email)
+    user = await User.find_one({"email": email})
 
     if not user or not verify_password(password, user.password_hash):
         raise HTTPException(

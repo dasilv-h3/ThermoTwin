@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { clearAccessToken, getAccessToken, setAccessToken } from '../services/api';
+import { clearTokens, getAccessToken, getRefreshToken, setTokens } from '../services/api';
 import {
   AuthUser,
   fetchMe,
@@ -28,7 +28,7 @@ export const loginThunk = createAsyncThunk(
   'auth/login',
   async (payload: { email: string; password: string }) => {
     const tokens = await loginApi(payload.email, payload.password);
-    await setAccessToken(tokens.access_token);
+    await setTokens(tokens.access_token, tokens.refresh_token);
     const user = await fetchMe();
     return { token: tokens.access_token, user };
   },
@@ -38,26 +38,30 @@ export const registerThunk = createAsyncThunk(
   'auth/register',
   async (payload: RegisterPayload) => {
     const tokens = await registerApi(payload);
-    await setAccessToken(tokens.access_token);
+    await setTokens(tokens.access_token, tokens.refresh_token);
     const user = await fetchMe();
     return { token: tokens.access_token, user };
   },
 );
 
 export const hydrateThunk = createAsyncThunk('auth/hydrate', async () => {
-  const token = await getAccessToken();
-  if (!token) return null;
+  const accessToken = await getAccessToken();
+  const refreshToken = await getRefreshToken();
+  if (!accessToken || !refreshToken) {
+    await clearTokens();
+    return null;
+  }
   try {
     const user = await fetchMe();
-    return { token, user };
+    return { token: accessToken, user };
   } catch {
-    await clearAccessToken();
+    await clearTokens();
     return null;
   }
 });
 
 export const logoutThunk = createAsyncThunk('auth/logout', async () => {
-  await clearAccessToken();
+  await clearTokens();
 });
 
 const authSlice = createSlice({

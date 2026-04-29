@@ -17,13 +17,13 @@ USER_ID = "507f1f77bcf86cd799439011"
 
 @pytest.mark.anyio
 async def test_register_success(client):
-    async def fake_insert(self):
-        self.id = PydanticObjectId(USER_ID)
+    fake_instance = MagicMock(id=PydanticObjectId(USER_ID))
+    fake_instance.insert = AsyncMock(return_value=fake_instance)
 
-    with (
-        patch("app.services.auth_service.User.find_one", new=AsyncMock(return_value=None)),
-        patch("app.services.auth_service.User.insert", new=fake_insert),
-    ):
+    mock_user_class = MagicMock(return_value=fake_instance)
+    mock_user_class.find_one = AsyncMock(return_value=None)
+
+    with patch("app.services.auth_service.User", new=mock_user_class):
         response = await client.post(
             "/api/auth/register",
             json={
@@ -39,15 +39,14 @@ async def test_register_success(client):
     assert "access_token" in data
     assert "refresh_token" in data
     assert data["token_type"] == "bearer"
+    mock_user_class.find_one.assert_called_once_with({"email": "new@test.com"})
 
 
 @pytest.mark.anyio
 async def test_register_duplicate_email(client):
     existing_user = MagicMock()
 
-    with patch(
-        "app.services.auth_service.User.find_one", new=AsyncMock(return_value=existing_user)
-    ):
+    with patch("app.services.auth_service.User.find_one", new=AsyncMock(return_value=existing_user)):
         response = await client.post(
             "/api/auth/register",
             json={
@@ -99,9 +98,7 @@ async def test_login_success(client):
         password_hash=hash_password(password),
     )
 
-    with patch(
-        "app.services.auth_service.User.find_one", new=AsyncMock(return_value=fake_user)
-    ):
+    with patch("app.services.auth_service.User.find_one", new=AsyncMock(return_value=fake_user)):
         response = await client.post(
             "/api/auth/login",
             json={"email": "user@test.com", "password": password},
@@ -121,9 +118,7 @@ async def test_login_wrong_password(client):
         password_hash=hash_password("CorrectPassword"),
     )
 
-    with patch(
-        "app.services.auth_service.User.find_one", new=AsyncMock(return_value=fake_user)
-    ):
+    with patch("app.services.auth_service.User.find_one", new=AsyncMock(return_value=fake_user)):
         response = await client.post(
             "/api/auth/login",
             json={"email": "user@test.com", "password": "WrongPassword"},
@@ -152,16 +147,33 @@ async def test_login_nonexistent_user(client):
 @pytest.mark.anyio
 async def test_refresh_success(client):
     refresh_token = create_refresh_token(user_id=USER_ID)
+    fake_user = MagicMock(id=PydanticObjectId(USER_ID))
 
-    response = await client.post(
-        "/api/auth/refresh",
-        json={"refresh_token": refresh_token},
-    )
+    with patch("app.api.routes.auth.User.get", new=AsyncMock(return_value=fake_user)):
+        response = await client.post(
+            "/api/auth/refresh",
+            json={"refresh_token": refresh_token},
+        )
 
     assert response.status_code == 200
     data = response.json()
     assert "access_token" in data
     assert "refresh_token" in data
+
+
+@pytest.mark.anyio
+async def test_refresh_with_deleted_user(client):
+    """RGPD: a refresh token from a deleted account must not work."""
+    refresh_token = create_refresh_token(user_id=USER_ID)
+
+    with patch("app.api.routes.auth.User.get", new=AsyncMock(return_value=None)):
+        response = await client.post(
+            "/api/auth/refresh",
+            json={"refresh_token": refresh_token},
+        )
+
+    assert response.status_code == 401
+    assert "no longer exists" in response.json()["detail"]
 
 
 @pytest.mark.anyio
@@ -264,3 +276,18 @@ async def test_me_with_refresh_token_rejected(client):
     )
     assert response.status_code == 401
     assert "Invalid token type" in response.json()["detail"]
+
+
+@pytest.mark.anyio
+async def test_me_with_deleted_user(client):
+    """RGPD: a valid token whose user has been deleted must return 401."""
+    token = create_access_token(user_id=USER_ID)
+
+    with patch("app.api.deps.User.get", new=AsyncMock(return_value=None)):
+        response = await client.get(
+            "/api/auth/me",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+
+    assert response.status_code == 401
+    assert "User not found" in response.json()["detail"]

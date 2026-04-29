@@ -1,10 +1,11 @@
 """Tests for core security utilities: hashing, JWT creation/decoding."""
 
-import pytest
 from datetime import UTC, datetime, timedelta
 
 import jwt as pyjwt
+import pytest
 
+from app.core.config import settings
 from app.core.security import (
     create_access_token,
     create_refresh_token,
@@ -12,12 +13,11 @@ from app.core.security import (
     hash_password,
     verify_password,
 )
-from app.core.config import settings
-
 
 # ---------------------------------------------------------------------------
 # Password hashing
 # ---------------------------------------------------------------------------
+
 
 def test_hash_password_returns_bcrypt_hash():
     hashed = hash_password("MySecret123")
@@ -44,15 +44,19 @@ def test_verify_password_wrong():
 # JWT access tokens
 # ---------------------------------------------------------------------------
 
+
+USER_ID = "507f1f77bcf86cd799439011"
+
+
 def test_create_access_token_decodable():
-    token = create_access_token(user_id=42)
+    token = create_access_token(user_id=USER_ID)
     payload = decode_token(token)
-    assert payload["sub"] == "42"
+    assert payload["sub"] == USER_ID
     assert payload["type"] == "access"
 
 
 def test_access_token_expires_in_future():
-    token = create_access_token(user_id=1)
+    token = create_access_token(user_id=USER_ID)
     payload = decode_token(token)
     exp = datetime.fromtimestamp(payload["exp"], tz=UTC)
     assert exp > datetime.now(UTC)
@@ -62,16 +66,17 @@ def test_access_token_expires_in_future():
 # JWT refresh tokens
 # ---------------------------------------------------------------------------
 
+
 def test_create_refresh_token_decodable():
-    token = create_refresh_token(user_id=99)
+    token = create_refresh_token(user_id=USER_ID)
     payload = decode_token(token)
-    assert payload["sub"] == "99"
+    assert payload["sub"] == USER_ID
     assert payload["type"] == "refresh"
 
 
 def test_refresh_token_longer_expiry_than_access():
-    access = create_access_token(user_id=1)
-    refresh = create_refresh_token(user_id=1)
+    access = create_access_token(user_id=USER_ID)
+    refresh = create_refresh_token(user_id=USER_ID)
     access_exp = decode_token(access)["exp"]
     refresh_exp = decode_token(refresh)["exp"]
     assert refresh_exp > access_exp
@@ -80,6 +85,7 @@ def test_refresh_token_longer_expiry_than_access():
 # ---------------------------------------------------------------------------
 # Token decoding edge cases
 # ---------------------------------------------------------------------------
+
 
 def test_decode_expired_token_raises():
     expired = pyjwt.encode(

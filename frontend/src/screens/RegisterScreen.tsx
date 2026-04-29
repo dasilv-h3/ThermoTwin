@@ -42,15 +42,22 @@ export default function RegisterScreen({ navigation }: Props) {
       return;
     }
 
-    if (password.length < 6) {
-      Alert.alert('Erreur', 'Le mot de passe doit contenir au moins 6 caractères');
+    if (password.length < 8 || !/[A-Z]/.test(password) || !/\d/.test(password)) {
+      Alert.alert(
+        'Erreur',
+        'Le mot de passe doit contenir au moins 8 caractères, une majuscule et un chiffre',
+      );
       return;
     }
 
     const trimmed = name.trim();
     const spaceIndex = trimmed.indexOf(' ');
-    const firstName = spaceIndex === -1 ? trimmed : trimmed.slice(0, spaceIndex);
-    const lastName = spaceIndex === -1 ? '' : trimmed.slice(spaceIndex + 1).trim();
+    if (spaceIndex === -1) {
+      Alert.alert('Erreur', 'Veuillez entrer votre prénom et votre nom');
+      return;
+    }
+    const firstName = trimmed.slice(0, spaceIndex);
+    const lastName = trimmed.slice(spaceIndex + 1).trim();
 
     await dispatch(
       registerThunk({
@@ -121,7 +128,7 @@ export default function RegisterScreen({ navigation }: Props) {
               <Ionicons name="lock-closed-outline" size={20} color="#999999" />
               <TextInput
                 style={styles.input}
-                placeholder="Mot de passe (min. 6 caractères)"
+                placeholder="Mot de passe (min. 8, 1 maj, 1 chiffre)"
                 placeholderTextColor="#999999"
                 value={password}
                 onChangeText={setPassword}

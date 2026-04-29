@@ -1,3 +1,4 @@
+from beanie import PydanticObjectId
 from fastapi import APIRouter, Depends, HTTPException, status
 from jwt import ExpiredSignatureError, InvalidTokenError
 
@@ -47,7 +48,29 @@ async def refresh(data: RefreshRequest):
             detail="Invalid token type",
         )
 
-    user_id = payload["sub"]
+    sub = payload.get("sub")
+    if not sub:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Missing token subject",
+        )
+
+    try:
+        user_id_obj = PydanticObjectId(sub)
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token subject",
+        )
+
+    user = await User.get(user_id_obj)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User no longer exists",
+        )
+
+    user_id = str(user.id)
     return TokenResponse(
         access_token=create_access_token(user_id),
         refresh_token=create_refresh_token(user_id),

@@ -31,8 +31,15 @@ async def get_current_user(
             detail="Invalid token type",
         )
 
+    sub = payload.get("sub")
+    if not sub:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Missing token subject",
+        )
+
     try:
-        user_id = PydanticObjectId(payload["sub"])
+        user_id = PydanticObjectId(sub)
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
