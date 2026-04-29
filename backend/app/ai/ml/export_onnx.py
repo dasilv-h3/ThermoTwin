@@ -1,6 +1,7 @@
 """
 GPTT-77 - Export modèle ONNX pour inférence optimisée
 """
+
 import onnx
 import tensorflow as tf
 import tf2onnx
