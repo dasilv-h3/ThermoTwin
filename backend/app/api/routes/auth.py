@@ -1,10 +1,9 @@
+from beanie import PydanticObjectId
 from fastapi import APIRouter, Depends, HTTPException, status
 from jwt import ExpiredSignatureError, InvalidTokenError
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_user
 from app.core.security import create_access_token, create_refresh_token, decode_token
-from app.db.postgresql import get_session
 from app.models.user import User
 from app.schemas.auth import (
     LoginRequest,
@@ -19,13 +18,13 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
 @router.post("/register", response_model=TokenResponse, status_code=201)
-async def register(data: RegisterRequest, session: AsyncSession = Depends(get_session)):
-    return await register_user(data, session)
+async def register(data: RegisterRequest):
+    return await register_user(data)
 
 
 @router.post("/login", response_model=TokenResponse)
-async def login(data: LoginRequest, session: AsyncSession = Depends(get_session)):
-    return await login_user(data.email, data.password, session)
+async def login(data: LoginRequest):
+    return await login_user(data.email, data.password)
 
 
 @router.post("/refresh", response_model=TokenResponse)
@@ -49,7 +48,29 @@ async def refresh(data: RefreshRequest):
             detail="Invalid token type",
         )
 
-    user_id = int(payload["sub"])
+    sub = payload.get("sub")
+    if not sub:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Missing token subject",
+        )
+
+    try:
+        user_id_obj = PydanticObjectId(sub)
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token subject",
+        )
+
+    user = await User.get(user_id_obj)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User no longer exists",
+        )
+
+    user_id = str(user.id)
     return TokenResponse(
         access_token=create_access_token(user_id),
         refresh_token=create_refresh_token(user_id),
@@ -58,4 +79,9 @@ async def refresh(data: RefreshRequest):
 
 @router.get("/me", response_model=UserResponse)
 async def me(current_user: User = Depends(get_current_user)):
-    return current_user
+    return UserResponse(
+        id=str(current_user.id),
+        email=current_user.email,
+        first_name=current_user.first_name,
+        last_name=current_user.last_name,
+    )

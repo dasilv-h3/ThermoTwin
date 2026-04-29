@@ -12,13 +12,12 @@ beanie==1.29.0
 PyJWT==2.10.1
 bcrypt==4.3.0
 
-# PostgreSQL (ORM)
-sqlalchemy[asyncio]==2.0.41
-psycopg[binary]==3.3.3
-alembic==1.15.2
-
 # Dev / Test
 pytest==8.3.5
 anyio[trio]==4.9.0
 httpx==0.28.1
 ruff==0.11.4
+
+# IA
+groq
+google-generativeai

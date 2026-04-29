@@ -1,20 +1,28 @@
+import { NavigationContainer } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { useEffect } from 'react';
+import { Provider } from 'react-redux';
+import RootNavigator from './src/navigation/RootNavigator';
+import { hydrateThunk } from './src/store/authSlice';
+import { store } from './src/store';
 
-export default function App() {
+function Root() {
+  useEffect(() => {
+    store.dispatch(hydrateThunk());
+  }, []);
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
+    <NavigationContainer>
+      <RootNavigator />
       <StatusBar style="auto" />
-    </View>
+    </NavigationContainer>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default function App() {
+  return (
+    <Provider store={store}>
+      <Root />
+    </Provider>
+  );
+}
