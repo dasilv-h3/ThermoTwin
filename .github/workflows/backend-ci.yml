@@ -40,20 +40,6 @@ jobs:
         working-directory: backend
 
     services:
-      postgres:
-        image: postgres:16-alpine
-        env:
-          POSTGRES_USER: thermotwin
-          POSTGRES_PASSWORD: thermotwin
-          POSTGRES_DB: thermotwin
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
       mongo:
         image: mongo:7.0
         env:
@@ -65,7 +51,6 @@ jobs:
     env:
       MONGO_URL: mongodb://root:thermotwin@localhost:27017/?authSource=admin
       MONGO_DB_NAME: thermotwin
-      POSTGRES_URL: postgresql+psycopg://thermotwin:thermotwin@localhost:5432/thermotwin
       JWT_SECRET: ci-test-secret
       DEBUG: false
 

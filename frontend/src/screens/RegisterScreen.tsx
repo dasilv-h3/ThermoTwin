@@ -15,26 +15,58 @@ import {
 } from 'react-native';
 
 import { RootStackParamList } from '../navigation/RootNavigator';
-import { loginThunk } from '../store/authSlice';
+import { registerThunk } from '../store/authSlice';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
+type Props = NativeStackScreenProps<RootStackParamList, 'Register'>;
 
-export default function LoginScreen({ navigation }: Props) {
+export default function RegisterScreen({ navigation }: Props) {
   const dispatch = useAppDispatch();
   const { status, error } = useAppSelector((state) => state.auth);
 
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const isLoading = status === 'loading';
 
-  async function handleLogin() {
-    if (!email || !password) {
+  async function handleRegister() {
+    if (!name || !email || !password || !confirmPassword) {
       Alert.alert('Erreur', 'Veuillez remplir tous les champs');
       return;
     }
-    await dispatch(loginThunk({ email, password }));
+
+    if (password !== confirmPassword) {
+      Alert.alert('Erreur', 'Les mots de passe ne correspondent pas');
+      return;
+    }
+
+    if (password.length < 8 || !/[A-Z]/.test(password) || !/\d/.test(password)) {
+      Alert.alert(
+        'Erreur',
+        'Le mot de passe doit contenir au moins 8 caractères, une majuscule et un chiffre',
+      );
+      return;
+    }
+
+    const trimmed = name.trim();
+    const spaceIndex = trimmed.indexOf(' ');
+    if (spaceIndex === -1) {
+      Alert.alert('Erreur', 'Veuillez entrer votre prénom et votre nom');
+      return;
+    }
+    const firstName = trimmed.slice(0, spaceIndex);
+    const lastName = trimmed.slice(spaceIndex + 1).trim();
+
+    await dispatch(
+      registerThunk({
+        first_name: firstName,
+        last_name: lastName,
+        email,
+        password,
+      }),
+    );
   }
 
   return (
@@ -51,18 +83,33 @@ export default function LoginScreen({ navigation }: Props) {
           <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back" size={24} color="#ffffff" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Connexion</Text>
+          <Text style={styles.headerTitle}>Inscription</Text>
           <View style={{ width: 40 }} />
         </View>
 
         <View style={styles.content}>
           <View style={styles.iconContainer}>
-            <Ionicons name="log-in" size={48} color="#00d4ff" />
+            <Ionicons name="person-add" size={48} color="#00d4ff" />
           </View>
-          <Text style={styles.title}>Bon retour !</Text>
-          <Text style={styles.subtitle}>Connectez-vous pour continuer</Text>
+          <Text style={styles.title}>Créer un compte</Text>
+          <Text style={styles.subtitle}>
+            Rejoignez ThermoTwin et commencez à économiser
+          </Text>
 
           <View style={styles.form}>
+            <View style={styles.inputContainer}>
+              <Ionicons name="person-outline" size={20} color="#999999" />
+              <TextInput
+                style={styles.input}
+                placeholder="Nom complet"
+                placeholderTextColor="#999999"
+                value={name}
+                onChangeText={setName}
+                autoCapitalize="words"
+                editable={!isLoading}
+              />
+            </View>
+
             <View style={styles.inputContainer}>
               <Ionicons name="mail-outline" size={20} color="#999999" />
               <TextInput
@@ -81,7 +128,7 @@ export default function LoginScreen({ navigation }: Props) {
               <Ionicons name="lock-closed-outline" size={20} color="#999999" />
               <TextInput
                 style={styles.input}
-                placeholder="Mot de passe"
+                placeholder="Mot de passe (min. 8, 1 maj, 1 chiffre)"
                 placeholderTextColor="#999999"
                 value={password}
                 onChangeText={setPassword}
@@ -90,28 +137,41 @@ export default function LoginScreen({ navigation }: Props) {
               />
             </View>
 
+            <View style={styles.inputContainer}>
+              <Ionicons name="lock-closed-outline" size={20} color="#999999" />
+              <TextInput
+                style={styles.input}
+                placeholder="Confirmer le mot de passe"
+                placeholderTextColor="#999999"
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+                secureTextEntry
+                editable={!isLoading}
+              />
+            </View>
+
             {error && <Text style={styles.errorText}>{error}</Text>}
 
             <TouchableOpacity
-              style={[styles.loginButton, isLoading && styles.loginButtonDisabled]}
-              onPress={handleLogin}
+              style={[styles.registerButton, isLoading && styles.registerButtonDisabled]}
+              onPress={handleRegister}
               disabled={isLoading}
             >
               {isLoading ? (
                 <ActivityIndicator color="#ffffff" />
               ) : (
-                <Text style={styles.loginButtonText}>Se connecter</Text>
+                <Text style={styles.registerButtonText}>Continuer</Text>
               )}
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={styles.registerLink}
-              onPress={() => navigation.navigate('Register')}
+              style={styles.loginLink}
+              onPress={() => navigation.navigate('Login')}
               disabled={isLoading}
             >
-              <Text style={styles.registerLinkText}>
-                Pas encore de compte ?{' '}
-                <Text style={styles.registerLinkBold}>S&apos;inscrire</Text>
+              <Text style={styles.loginLinkText}>
+                Vous avez déjà un compte ?{' '}
+                <Text style={styles.loginLinkBold}>Se connecter</Text>
               </Text>
             </TouchableOpacity>
           </View>
@@ -166,7 +226,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignSelf: 'center',
     marginBottom: 24,
-    marginTop: 40,
   },
   title: {
     fontSize: 28,
@@ -203,30 +262,30 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 14,
   },
-  loginButton: {
+  registerButton: {
     backgroundColor: '#00d4ff',
     paddingVertical: 18,
     borderRadius: 12,
     alignItems: 'center',
     marginTop: 8,
   },
-  loginButtonDisabled: {
+  registerButtonDisabled: {
     opacity: 0.6,
   },
-  loginButtonText: {
+  registerButtonText: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#ffffff',
   },
-  registerLink: {
+  loginLink: {
     alignItems: 'center',
     marginTop: 8,
   },
-  registerLinkText: {
+  loginLinkText: {
     fontSize: 14,
     color: '#999999',
   },
-  registerLinkBold: {
+  loginLinkBold: {
     color: '#00d4ff',
     fontWeight: 'bold',
   },

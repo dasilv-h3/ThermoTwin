@@ -30,6 +30,5 @@ def setup_logging(debug: bool = False):
 
     # Silence noisy loggers
     logging.getLogger("uvicorn.access").setLevel(logging.WARNING)
-    logging.getLogger("sqlalchemy.engine").setLevel(logging.WARNING)
 
     return logger
