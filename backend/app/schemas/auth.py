@@ -1,4 +1,8 @@
+from datetime import datetime
+
 from pydantic import BaseModel, EmailStr, Field, field_validator
+
+from app.models.user import SubscriptionTier
 
 
 class RegisterRequest(BaseModel):
@@ -30,8 +34,41 @@ class RefreshRequest(BaseModel):
     refresh_token: str
 
 
+class SubscriptionResponse(BaseModel):
+    tier: SubscriptionTier
+    scans_used: int
+    scans_limit: int
+    started_at: datetime
+    expires_at: datetime | None = None
+
+
+class NotificationPreferencesResponse(BaseModel):
+    energy_tips: bool
+    scan_ready: bool
+    promotional: bool
+
+
 class UserResponse(BaseModel):
     id: str
     email: str
     first_name: str
     last_name: str
+    subscription: SubscriptionResponse
+    notification_preferences: NotificationPreferencesResponse
+
+
+class UpdateProfileRequest(BaseModel):
+    first_name: str | None = None
+    last_name: str | None = None
+    email: EmailStr | None = None
+
+
+class UpdateNotificationsRequest(BaseModel):
+    energy_tips: bool | None = None
+    scan_ready: bool | None = None
+    promotional: bool | None = None
+
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str

@@ -2,10 +2,15 @@ import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { clearTokens, getAccessToken, getRefreshToken, setTokens } from '../services/api';
 import {
   AuthUser,
+  deleteAccount as deleteAccountApi,
   fetchMe,
   login as loginApi,
   register as registerApi,
   RegisterPayload,
+  updateNotifications as updateNotificationsApi,
+  UpdateNotificationsPayload,
+  updateProfile as updateProfileApi,
+  UpdateProfilePayload,
 } from '../services/authService';
 
 interface AuthState {
@@ -64,6 +69,25 @@ export const logoutThunk = createAsyncThunk('auth/logout', async () => {
   await clearTokens();
 });
 
+export const updateProfileThunk = createAsyncThunk(
+  'auth/updateProfile',
+  async (payload: UpdateProfilePayload) => {
+    return await updateProfileApi(payload);
+  },
+);
+
+export const updateNotificationsThunk = createAsyncThunk(
+  'auth/updateNotifications',
+  async (payload: UpdateNotificationsPayload) => {
+    return await updateNotificationsApi(payload);
+  },
+);
+
+export const deleteAccountThunk = createAsyncThunk('auth/deleteAccount', async () => {
+  await deleteAccountApi();
+  await clearAccessToken();
+});
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -80,6 +104,12 @@ const authSlice = createSlice({
       state.token = action.payload.token;
       state.user = action.payload.user;
       state.isAuthenticated = true;
+      state.status = 'idle';
+      state.error = null;
+    };
+
+    const handleUserUpdate = (state: AuthState, action: PayloadAction<AuthUser>) => {
+      state.user = action.payload;
       state.status = 'idle';
       state.error = null;
     };
@@ -114,6 +144,24 @@ const authSlice = createSlice({
       })
 
       .addCase(logoutThunk.fulfilled, (state) => {
+        state.token = null;
+        state.user = null;
+        state.isAuthenticated = false;
+      })
+
+      .addCase(updateProfileThunk.pending, (state) => {
+        state.status = 'loading';
+        state.error = null;
+      })
+      .addCase(updateProfileThunk.fulfilled, handleUserUpdate)
+      .addCase(updateProfileThunk.rejected, (state, action) => {
+        state.status = 'error';
+        state.error = action.error.message ?? 'Update failed';
+      })
+
+      .addCase(updateNotificationsThunk.fulfilled, handleUserUpdate)
+
+      .addCase(deleteAccountThunk.fulfilled, (state) => {
         state.token = null;
         state.user = null;
         state.isAuthenticated = false;
