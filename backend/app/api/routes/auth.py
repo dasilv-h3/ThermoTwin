@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 from beanie import PydanticObjectId
 from fastapi import APIRouter, Depends, HTTPException, status
 from jwt import ExpiredSignatureError, InvalidTokenError
@@ -139,6 +141,42 @@ async def update_me_password(
     current_user: User = Depends(get_current_user),
 ):
     await change_password(current_user, data)
+
+
+@router.get("/me/export")
+async def export_me(current_user: User = Depends(get_current_user)):
+    """RGPD Article 20 — droit à la portabilité.
+
+    Retourne toutes les données personnelles de l'utilisateur dans un format
+    JSON structuré et réutilisable.
+    """
+    return {
+        "exported_at": datetime.now(UTC).isoformat(),
+        "format_version": "1.0",
+        "user": {
+            "id": str(current_user.id),
+            "email": current_user.email,
+            "first_name": current_user.first_name,
+            "last_name": current_user.last_name,
+            "created_at": current_user.created_at.isoformat(),
+            "updated_at": current_user.updated_at.isoformat(),
+        },
+        "subscription": {
+            "tier": current_user.subscription.tier,
+            "scans_used": current_user.subscription.scans_used,
+            "scans_limit": current_user.subscription.scans_limit,
+            "started_at": current_user.subscription.started_at.isoformat(),
+            "expires_at": (
+                current_user.subscription.expires_at.isoformat() if current_user.subscription.expires_at else None
+            ),
+        },
+        "notification_preferences": {
+            "energy_tips": current_user.notification_preferences.energy_tips,
+            "scan_ready": current_user.notification_preferences.scan_ready,
+            "promotional": current_user.notification_preferences.promotional,
+        },
+        "scans": [],  # Sera peuplé quand le modèle Scan existera
+    }
 
 
 @router.delete("/me", status_code=204)

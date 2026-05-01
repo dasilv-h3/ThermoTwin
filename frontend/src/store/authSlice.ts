@@ -39,15 +39,12 @@ export const loginThunk = createAsyncThunk(
   },
 );
 
-export const registerThunk = createAsyncThunk(
-  'auth/register',
-  async (payload: RegisterPayload) => {
-    const tokens = await registerApi(payload);
-    await setTokens(tokens.access_token, tokens.refresh_token);
-    const user = await fetchMe();
-    return { token: tokens.access_token, user };
-  },
-);
+export const registerThunk = createAsyncThunk('auth/register', async (payload: RegisterPayload) => {
+  const tokens = await registerApi(payload);
+  await setTokens(tokens.access_token, tokens.refresh_token);
+  const user = await fetchMe();
+  return { token: tokens.access_token, user };
+});
 
 export const hydrateThunk = createAsyncThunk('auth/hydrate', async () => {
   const accessToken = await getAccessToken();
@@ -85,7 +82,7 @@ export const updateNotificationsThunk = createAsyncThunk(
 
 export const deleteAccountThunk = createAsyncThunk('auth/deleteAccount', async () => {
   await deleteAccountApi();
-  await clearAccessToken();
+  await clearTokens();
 });
 
 const authSlice = createSlice({
