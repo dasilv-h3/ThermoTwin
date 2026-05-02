@@ -2,6 +2,7 @@
 GPTT-34 - Import mesh Python
 Open3D + Trimesh pour traitement des scans 3D
 """
+
 import numpy as np
 import open3d as o3d
 import trimesh
@@ -15,7 +16,7 @@ def load_mesh_trimesh(file_path: str) -> dict:
         "faces": len(mesh.faces),
         "volume": float(mesh.volume) if mesh.is_watertight else None,
         "bounds": mesh.bounds.tolist(),
-        "is_watertight": mesh.is_watertight
+        "is_watertight": mesh.is_watertight,
     }
 
 
@@ -28,7 +29,7 @@ def load_mesh_open3d(file_path: str) -> dict:
         "vertices": len(vertices),
         "faces": len(triangles),
         "bounds_min": vertices.min(axis=0).tolist(),
-        "bounds_max": vertices.max(axis=0).tolist()
+        "bounds_max": vertices.max(axis=0).tolist(),
     }
 
 
