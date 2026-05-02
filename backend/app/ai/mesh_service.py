@@ -3,8 +3,8 @@ GPTT-34 - Import mesh Python
 Open3D + Trimesh pour traitement des scans 3D
 """
 import numpy as np
-import trimesh
 import open3d as o3d
+import trimesh
 
 
 def load_mesh_trimesh(file_path: str) -> dict:
