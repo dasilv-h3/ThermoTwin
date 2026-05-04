@@ -33,7 +33,7 @@ export default function EditProfileScreen({ navigation }: Props) {
 
   async function handleSave() {
     if (!firstName || !email) {
-      Alert.alert('Erreur', 'Le prénom et l\'email sont obligatoires');
+      Alert.alert('Erreur', "Le prénom et l'email sont obligatoires");
       return;
     }
 
@@ -58,10 +58,7 @@ export default function EditProfileScreen({ navigation }: Props) {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}
     >
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
-      >
+      <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back" size={24} color="#ffffff" />

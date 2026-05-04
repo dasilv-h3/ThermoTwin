@@ -92,9 +92,7 @@ export default function RegisterScreen({ navigation }: Props) {
             <Ionicons name="person-add" size={48} color="#00d4ff" />
           </View>
           <Text style={styles.title}>Créer un compte</Text>
-          <Text style={styles.subtitle}>
-            Rejoignez ThermoTwin et commencez à économiser
-          </Text>
+          <Text style={styles.subtitle}>Rejoignez ThermoTwin et commencez à économiser</Text>
 
           <View style={styles.form}>
             <View style={styles.inputContainer}>
@@ -170,8 +168,7 @@ export default function RegisterScreen({ navigation }: Props) {
               disabled={isLoading}
             >
               <Text style={styles.loginLinkText}>
-                Vous avez déjà un compte ?{' '}
-                <Text style={styles.loginLinkBold}>Se connecter</Text>
+                Vous avez déjà un compte ? <Text style={styles.loginLinkBold}>Se connecter</Text>
               </Text>
             </TouchableOpacity>
           </View>

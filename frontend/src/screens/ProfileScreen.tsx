@@ -1,14 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import {
-  Alert,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { RootStackParamList } from '../navigation/RootNavigator';
 import { SubscriptionTier } from '../services/authService';
@@ -23,10 +16,7 @@ const TIER_LABEL: Record<SubscriptionTier, string> = {
   lifetime: 'Lifetime',
 };
 
-const TIER_PLAN: Record<
-  SubscriptionTier,
-  { name: string; price: string; features: string[] }
-> = {
+const TIER_PLAN: Record<SubscriptionTier, { name: string; price: string; features: string[] }> = {
   free: {
     name: 'Plan Gratuit',
     price: '0€/mois',
@@ -140,7 +130,11 @@ export default function ProfileScreen() {
         />
         <MenuItem icon="notifications-outline" label="Notifications" onPress={comingSoon} />
         <MenuItem icon="help-circle-outline" label="Aide & Support" onPress={comingSoon} />
-        <MenuItem icon="document-text-outline" label="Conditions d'utilisation" onPress={comingSoon} />
+        <MenuItem
+          icon="document-text-outline"
+          label="Conditions d'utilisation"
+          onPress={comingSoon}
+        />
         <MenuItem icon="shield-checkmark-outline" label="Confidentialité" onPress={comingSoon} />
 
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
