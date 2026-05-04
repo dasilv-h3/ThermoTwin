@@ -110,8 +110,7 @@ export default function LoginScreen({ navigation }: Props) {
               disabled={isLoading}
             >
               <Text style={styles.registerLinkText}>
-                Pas encore de compte ?{' '}
-                <Text style={styles.registerLinkBold}>S&apos;inscrire</Text>
+                Pas encore de compte ? <Text style={styles.registerLinkBold}>S&apos;inscrire</Text>
               </Text>
             </TouchableOpacity>
           </View>

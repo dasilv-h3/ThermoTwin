@@ -101,3 +101,7 @@ export function deleteAccount(): Promise<null> {
     method: 'DELETE',
   });
 }
+
+export function exportData(): Promise<unknown> {
+  return apiFetch<unknown>('/api/auth/me/export');
+}

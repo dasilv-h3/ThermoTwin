@@ -1,5 +1,6 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import ChangePasswordScreen from '../screens/ChangePasswordScreen';
+import ConfidentialityScreen from '../screens/ConfidentialityScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
 import LoginScreen from '../screens/LoginScreen';
 import RegisterScreen from '../screens/RegisterScreen';
@@ -14,6 +15,7 @@ export type RootStackParamList = {
   Main: undefined;
   EditProfile: undefined;
   ChangePassword: undefined;
+  Confidentiality: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -28,6 +30,7 @@ export default function RootNavigator() {
           <Stack.Screen name="Main" component={TabNavigator} />
           <Stack.Screen name="EditProfile" component={EditProfileScreen} />
           <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} />
+          <Stack.Screen name="Confidentiality" component={ConfidentialityScreen} />
         </>
       ) : (
         <>

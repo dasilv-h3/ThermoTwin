@@ -37,7 +37,7 @@ export default function ChangePasswordScreen({ navigation }: Props) {
     }
 
     if (newPassword === currentPassword) {
-      Alert.alert('Erreur', 'Le nouveau mot de passe doit être différent de l\'ancien');
+      Alert.alert('Erreur', "Le nouveau mot de passe doit être différent de l'ancien");
       return;
     }
 
