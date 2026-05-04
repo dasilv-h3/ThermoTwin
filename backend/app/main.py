@@ -9,6 +9,7 @@ from app.api.routes.health import router as health_router
 from app.core.config import settings
 from app.core.logging import setup_logging
 from app.db.mongodb import close_mongo, connect_mongo
+from app.models.artisan import Artisan
 from app.models.user import User
 
 logger = setup_logging(debug=settings.DEBUG)
@@ -19,7 +20,7 @@ async def lifespan(app: FastAPI):
     if not settings.DEBUG and settings.JWT_SECRET == "change-me-in-production":
         raise RuntimeError("JWT_SECRET must be set to a non-default value when DEBUG=False")
     logger.info("Starting %s", settings.APP_NAME)
-    await connect_mongo(document_models=[User])
+    await connect_mongo(document_models=[User, Artisan])
     yield
     await close_mongo()
     logger.info("Shutdown complete")
