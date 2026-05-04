@@ -43,6 +43,8 @@ export default [
       ...reactHooks.configs.recommended.rules,
       ...jsxA11y.configs.recommended.rules,
       'react/react-in-jsx-scope': 'off',
+      // TypeScript provides prop validation, react/prop-types is redundant
+      'react/prop-types': 'off',
       // jsx-a11y targets the DOM (alt, htmlFor, onClick/role pairing, ...).
       // On React Native we rely on accessibilityRole / accessibilityLabel instead,
       // so we disable the purely DOM-targeted rules that don't map cleanly to RN.
