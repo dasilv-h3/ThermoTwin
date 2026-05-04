@@ -135,7 +135,11 @@ export default function ProfileScreen() {
           label="Conditions d'utilisation"
           onPress={comingSoon}
         />
-        <MenuItem icon="shield-checkmark-outline" label="Confidentialité" onPress={comingSoon} />
+        <MenuItem
+          icon="shield-checkmark-outline"
+          label="Confidentialité"
+          onPress={() => navigation.navigate('Confidentiality')}
+        />
 
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Ionicons name="log-out-outline" size={22} color="#ff6b6b" />
