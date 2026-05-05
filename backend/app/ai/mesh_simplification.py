@@ -3,7 +3,6 @@ GPTT-36 - Simplification mesh 3D
 Réduit le nombre de polygones pour optimiser les performances
 """
 
-
 import trimesh
 
 
