@@ -2,10 +2,10 @@
 GPTT-36 - Simplification mesh 3D
 Réduit le nombre de polygones pour optimiser les performances
 """
-from multiprocessing import reduction
+
 
 import trimesh
-import numpy as np
+
 
 def simplify_mesh(mesh: trimesh.Trimesh, target_ratio: float = 0.5) -> dict:
     """
@@ -26,8 +26,9 @@ def simplify_mesh(mesh: trimesh.Trimesh, target_ratio: float = 0.5) -> dict:
         "faces_before": faces_before,
         "faces_after": len(simplified.faces),
         "reduction_ratio": round(1 - len(simplified.faces) / faces_before, 2),
-        "mesh": simplified
+        "mesh": simplified,
     }
+
 
 def adaptive_simplification(mesh: trimesh.Trimesh, max_faces: int = 5000) -> dict:
     """
@@ -38,7 +39,7 @@ def adaptive_simplification(mesh: trimesh.Trimesh, max_faces: int = 5000) -> dic
             "simplified": False,
             "message": "Mesh déjà dans les limites acceptables",
             "faces": len(mesh.faces),
-            "mesh": mesh
+            "mesh": mesh,
         }
 
     ratio = max_faces / len(mesh.faces)

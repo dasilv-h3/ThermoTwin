@@ -2,12 +2,15 @@
 GPTT-37 - Détection surfaces planes
 RANSAC pour identifier murs, sols et plafonds
 """
+
 import numpy as np
 import trimesh
 from trimesh.sample import sample_surface
 
 
-def detect_planes_ransac(mesh: trimesh.Trimesh, num_planes: int = 6, iterations: int = 1000, threshold: float = 0.02) -> list:
+def detect_planes_ransac(
+    mesh: trimesh.Trimesh, num_planes: int = 6, iterations: int = 1000, threshold: float = 0.02
+) -> list:
     """
     Détecte les surfaces planes (murs/sols/plafonds) via RANSAC.
     num_planes: nombre de plans à détecter
@@ -53,13 +56,15 @@ def detect_planes_ransac(mesh: trimesh.Trimesh, num_planes: int = 6, iterations:
         normal, d = best_plane
         surface_type = classify_surface(normal)
 
-        planes.append({
-            "normal": normal.tolist(),
-            "d": float(d),
-            "surface_type": surface_type,
-            "inliers_count": len(best_inliers),
-            "area_estimate_m2": round(len(best_inliers) / 5000 * mesh.area, 2)
-        })
+        planes.append(
+            {
+                "normal": normal.tolist(),
+                "d": float(d),
+                "surface_type": surface_type,
+                "inliers_count": len(best_inliers),
+                "area_estimate_m2": round(len(best_inliers) / 5000 * mesh.area, 2),
+            }
+        )
 
         # Retire les inliers pour trouver le prochain plan
         distances = np.abs(np.dot(remaining_points, normal) + d)
@@ -90,6 +95,6 @@ if __name__ == "__main__":
 
     print(f"\n{len(planes)} surfaces détectées :")
     for i, plane in enumerate(planes):
-        print(f"  {i+1}. {plane['surface_type']} — {plane['inliers_count']} points — ~{plane['area_estimate_m2']}m²")
+        print(f"  {i + 1}. {plane['surface_type']} — {plane['inliers_count']} points — ~{plane['area_estimate_m2']}m²")
 
     print("\nDétection surfaces planes ✅")

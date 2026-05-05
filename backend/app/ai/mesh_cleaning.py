@@ -2,6 +2,7 @@
 GPTT-35 - Cleaning outliers du mesh 3D
 Nettoyage des points aberrants pour améliorer la qualité du scan
 """
+
 import numpy as np
 import trimesh
 
@@ -40,6 +41,7 @@ def remove_degenerate_faces(mesh: trimesh.Trimesh) -> trimesh.Trimesh:
     clean = trimesh.Trimesh(vertices=clean.vertices, faces=clean.faces, process=True)
     return clean
 
+
 def clean_mesh(mesh: trimesh.Trimesh) -> dict:
     """Pipeline complet de nettoyage"""
     vertices_before = len(mesh.vertices)
@@ -54,7 +56,7 @@ def clean_mesh(mesh: trimesh.Trimesh) -> dict:
         "faces_before": faces_before,
         "faces_after": len(mesh.faces),
         "vertices_removed": vertices_before - len(mesh.vertices),
-        "mesh": mesh
+        "mesh": mesh,
     }
 
 
