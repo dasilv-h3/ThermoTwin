@@ -17,6 +17,7 @@ from app.models.mpr_amount import (
     IncomeBracket,
     MprAmount,
     MprIncomeThreshold,
+    Unit,
     WorkType,
 )
 
@@ -44,6 +45,21 @@ class EligibilityResult:
     reason: str
     work_type: WorkType
     year: int
+
+
+@dataclass(frozen=True)
+class AidComputation:
+    """Result of an MPR aid amount calculation for a (foyer, work, quantity) tuple."""
+
+    is_eligible: bool
+    amount: float  # euros — 0.0 when not eligible
+    unit_amount: float | None  # € per unit (None when not eligible)
+    quantity_applied: float  # quantity actually used in the multiplication (1.0 for forfait)
+    bracket: IncomeBracket
+    work_type: WorkType
+    unit: Unit
+    year: int
+    reason: str
 
 
 async def compute_thresholds(year: int, zone: GeoZone, household_size: int) -> Thresholds | None:
@@ -175,4 +191,95 @@ async def check_eligibility(
         reason=REASON_OK,
         work_type=work_type,
         year=year,
+    )
+
+
+async def compute_aid_amount(
+    revenu_fiscal: int,
+    household_size: int,
+    zone: GeoZone,
+    work_type: WorkType,
+    year: int,
+    quantity: float = 1.0,
+) -> AidComputation:
+    """Compute the actual € aid amount for a household + work + quantity.
+
+    Multiplication rules per unit:
+      - FORFAIT: amount = unit_amount (quantity ignored, applied=1.0)
+      - PER_M2 / PER_EQUIPMENT / PER_KW: amount = unit_amount × quantity
+      - cap_amount, when set on the row, caps the final amount.
+
+    When the foyer is not eligible (any of the three reasons surfaced by
+    `check_eligibility`), `amount` is 0.0 and `reason` carries the cause.
+    The bracket and unit are still populated when known so the UI can show
+    the user "à votre tranche de revenu, ce geste n'est pas financé".
+    """
+    if quantity < 0:
+        raise ValueError("quantity must be >= 0")
+
+    bracket = await compute_income_bracket(revenu_fiscal, household_size, zone, year)
+    if bracket is None:
+        return AidComputation(
+            is_eligible=False,
+            amount=0.0,
+            unit_amount=None,
+            quantity_applied=quantity,
+            bracket=IncomeBracket.BLEU,
+            work_type=work_type,
+            unit=Unit.FORFAIT,
+            year=year,
+            reason=REASON_NO_THRESHOLDS_FOR_YEAR,
+        )
+
+    amount_row = await MprAmount.find_one(
+        MprAmount.year == year,
+        MprAmount.work_type == work_type,
+    )
+    if amount_row is None:
+        return AidComputation(
+            is_eligible=False,
+            amount=0.0,
+            unit_amount=None,
+            quantity_applied=quantity,
+            bracket=bracket,
+            work_type=work_type,
+            unit=Unit.FORFAIT,
+            year=year,
+            reason=REASON_WORK_TYPE_NOT_IN_BAREME,
+        )
+
+    unit_amount = _amount_for_bracket(amount_row, bracket)
+    if unit_amount is None:
+        return AidComputation(
+            is_eligible=False,
+            amount=0.0,
+            unit_amount=None,
+            quantity_applied=quantity,
+            bracket=bracket,
+            work_type=work_type,
+            unit=amount_row.unit,
+            year=year,
+            reason=REASON_BRACKET_NOT_ELIGIBLE,
+        )
+
+    if amount_row.unit == Unit.FORFAIT:
+        amount = float(unit_amount)
+        quantity_applied = 1.0
+    else:
+        amount = float(unit_amount) * quantity
+        quantity_applied = quantity
+
+    if amount_row.cap_amount is not None and amount > amount_row.cap_amount:
+        amount = float(amount_row.cap_amount)
+
+    return AidComputation(
+        is_eligible=True,
+        amount=amount,
+        unit_amount=float(unit_amount),
+        quantity_applied=quantity_applied,
+        bracket=bracket,
+        work_type=work_type,
+        unit=amount_row.unit,
+        year=year,
+        reason=REASON_OK,
     )
