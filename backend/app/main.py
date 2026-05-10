@@ -7,6 +7,7 @@ from app.api.middleware import RequestLoggingMiddleware
 from app.api.routes.artisans import router as artisans_router
 from app.api.routes.auth import router as auth_router
 from app.api.routes.health import router as health_router
+from app.api.routes.mpr import router as mpr_router
 from app.core.config import settings
 from app.core.logging import setup_logging
 from app.db.mongodb import close_mongo, connect_mongo
@@ -45,3 +46,4 @@ app.add_middleware(
 app.include_router(health_router, prefix=settings.API_PREFIX)
 app.include_router(auth_router, prefix=settings.API_PREFIX)
 app.include_router(artisans_router, prefix=settings.API_PREFIX)
+app.include_router(mpr_router, prefix=settings.API_PREFIX)
