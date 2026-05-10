@@ -128,6 +128,11 @@ export default function ProfileScreen() {
           label="Changer le mot de passe"
           onPress={() => navigation.navigate('ChangePassword')}
         />
+        <MenuItem
+          icon="calculator-outline"
+          label="Estimer mon aide MaPrimeRénov’"
+          onPress={() => navigation.navigate('MprAid')}
+        />
         <MenuItem icon="notifications-outline" label="Notifications" onPress={comingSoon} />
         <MenuItem icon="help-circle-outline" label="Aide & Support" onPress={comingSoon} />
         <MenuItem
