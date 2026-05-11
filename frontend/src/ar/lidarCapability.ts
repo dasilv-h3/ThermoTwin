@@ -1,4 +1,4 @@
-import Constants from 'expo-constants';
+import * as Device from 'expo-device';
 import { Platform } from 'react-native';
 
 export type LidarCapability = {
@@ -7,30 +7,23 @@ export type LidarCapability = {
   deviceModel?: string;
 };
 
-const LIDAR_IOS_MODELS = [
-  'iPhone13,2',
-  'iPhone13,3',
-  'iPhone13,4',
-  'iPhone14,2',
-  'iPhone14,3',
-  'iPhone15,2',
-  'iPhone15,3',
-  'iPhone16,1',
-  'iPhone16,2',
-  'iPhone17,1',
-  'iPhone17,2',
-  'iPad8,',
-  'iPad13,',
-  'iPad14,',
-];
+// Tous les iPhone "Pro" et "Pro Max" depuis l'iPhone 12 embarquent un capteur
+// LiDAR, idem pour les iPad Pro 2020+. Match par nom marketing (modelName)
+// plutôt que par identifiant (iPhoneN,M) pour éviter une allowlist à mettre
+// à jour à chaque sortie.
+const IPHONE_PRO_PATTERN = /^iPhone\s+(1[2-9]|[2-9]\d+)\s+Pro(\s+Max)?$/i;
+const IPAD_PRO_PATTERN = /^iPad\s+Pro\b/i;
 
-function getDeviceModelIdentifier(): string | undefined {
-  const platform = Constants.platform as { ios?: { model?: string } } | null | undefined;
-  return platform?.ios?.model ?? undefined;
-}
-
-function isLidarModel(model: string): boolean {
-  return LIDAR_IOS_MODELS.some((prefix) => model.startsWith(prefix));
+function isLidarMarketingName(modelName: string): boolean {
+  if (IPHONE_PRO_PATTERN.test(modelName)) {
+    return true;
+  }
+  if (IPAD_PRO_PATTERN.test(modelName)) {
+    // iPad Pro 11" / 12.9" depuis 2020 (4ᵉ gen 12.9" / 2ᵉ gen 11") ont du LiDAR.
+    // Les iPad Pro antérieurs ne sont plus dans la cible.
+    return true;
+  }
+  return false;
 }
 
 export function getLidarCapability(): LidarCapability {
@@ -43,14 +36,14 @@ export function getLidarCapability(): LidarCapability {
     return { supported: false, reason: 'os-version' };
   }
 
-  const model = getDeviceModelIdentifier();
-  if (!model) {
+  const modelName = Device.modelName ?? undefined;
+  if (!modelName) {
     return { supported: false, reason: 'device-model' };
   }
 
-  if (!isLidarModel(model)) {
-    return { supported: false, reason: 'device-model', deviceModel: model };
+  if (!isLidarMarketingName(modelName)) {
+    return { supported: false, reason: 'device-model', deviceModel: modelName };
   }
 
-  return { supported: true, deviceModel: model };
+  return { supported: true, deviceModel: modelName };
 }
