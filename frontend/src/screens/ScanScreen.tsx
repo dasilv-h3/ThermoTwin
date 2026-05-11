@@ -23,7 +23,8 @@ const TRACKING_LABELS = {
 
 export default function ScanScreen() {
   const { status, tracking, mode, capability, error, start, stop } = useARSession();
-  const isRunning = status === 'running' || status === 'starting';
+  const isStarting = status === 'starting';
+  const isRunning = status === 'running';
   const modeLabel =
     mode === 'video-with-lidar'
       ? 'Vidéo + LiDAR'
@@ -67,14 +68,18 @@ export default function ScanScreen() {
 
       <Pressable
         accessibilityRole="button"
-        style={[styles.button, isRunning && styles.buttonDisabled]}
-        disabled={isRunning}
+        style={[styles.button, isStarting && styles.buttonDisabled]}
+        disabled={isStarting}
         onPress={() => {
-          start().catch(() => {});
+          if (isRunning) {
+            stop().catch(() => {});
+          } else {
+            start().catch(() => {});
+          }
         }}
       >
         <Text style={styles.buttonText}>
-          {status === 'starting' ? 'Démarrage…' : 'Démarrer le scan'}
+          {isStarting ? 'Démarrage…' : isRunning ? 'Arrêter le scan' : 'Démarrer le scan'}
         </Text>
       </Pressable>
     </View>

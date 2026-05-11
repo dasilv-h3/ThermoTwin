@@ -44,11 +44,15 @@ export class ARSession {
     const mode = this.resolveMode();
     this.setStatus('starting');
     this.setMode(mode);
+    this.emit({ type: 'tracking', state: 'initializing' });
 
     try {
       await this.initNativeSession(mode);
       this.setStatus('running');
-      this.emit({ type: 'tracking', state: 'initializing' });
+      // Stub natif : on considère le tracking nominal dès la fin d'init.
+      // Quand le pont ARKit/ARCore sera branché (GPTT-25/GPTT-31), cet
+      // évènement sera émis par les callbacks natifs.
+      this.emit({ type: 'tracking', state: 'normal' });
     } catch (cause) {
       const error: ARSessionError = {
         code: 'native-error',
