@@ -5,6 +5,7 @@ import ChangePasswordScreen from '../screens/ChangePasswordScreen';
 import ConfidentialityScreen from '../screens/ConfidentialityScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
 import LoginScreen from '../screens/LoginScreen';
+import MprAidScreen from '../screens/MprAidScreen';
 import RegisterScreen from '../screens/RegisterScreen';
 import WelcomeScreen from '../screens/WelcomeScreen';
 import { useAppSelector } from '../store/hooks';
@@ -20,6 +21,7 @@ export type RootStackParamList = {
   Confidentiality: undefined;
   ArtisansList: undefined;
   ArtisanDetail: { id: string };
+  MprAid: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -37,6 +39,7 @@ export default function RootNavigator() {
           <Stack.Screen name="Confidentiality" component={ConfidentialityScreen} />
           <Stack.Screen name="ArtisansList" component={ArtisansListScreen} />
           <Stack.Screen name="ArtisanDetail" component={ArtisanDetailScreen} />
+          <Stack.Screen name="MprAid" component={MprAidScreen} />
         </>
       ) : (
         <>

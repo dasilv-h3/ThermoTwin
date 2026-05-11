@@ -12,6 +12,9 @@ beanie==1.29.0
 PyJWT==2.10.1
 bcrypt==4.3.0
 
+# Scraping
+beautifulsoup4==4.13.3
+
 # Dev / Test
 pytest==8.3.5
 anyio[trio]==4.9.0

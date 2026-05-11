@@ -1,0 +1,161 @@
+{
+  "year": 2026,
+  "source_url": "https://www.anah.gouv.fr/sites/default/files/2026-02/Anah-FR-Guide_des_aides_Fev2026_WEB_20260224.pdf",
+  "comment": "MaPrimeRénov' parcours décarboné (geste par geste) — édition Anah février 2026. ROSE n'est plus éligible au parcours par geste. Quelques travaux (chaudières bois bûches/granulés, isolation murs ITI/ITE) sont sortis de l'éligibilité 2026 et ne figurent pas dans ce barème.",
+  "amounts": [
+    {
+      "work_type": "heat_pump_geothermal",
+      "label": "Pompe à chaleur géothermique ou solarothermique",
+      "unit": "forfait",
+      "amount_bleu": 11000,
+      "amount_jaune": 9000,
+      "amount_violet": 6000,
+      "amount_rose": null
+    },
+    {
+      "work_type": "solar_combined_system",
+      "label": "Système solaire combiné",
+      "unit": "forfait",
+      "amount_bleu": 10000,
+      "amount_jaune": 8000,
+      "amount_violet": 4000,
+      "amount_rose": null
+    },
+    {
+      "work_type": "heat_pump_air_water",
+      "label": "Pompe à chaleur air/eau ou hybride",
+      "unit": "forfait",
+      "amount_bleu": 5000,
+      "amount_jaune": 4000,
+      "amount_violet": 3000,
+      "amount_rose": null
+    },
+    {
+      "work_type": "solar_water_heater",
+      "label": "Chauffe-eau solaire individuel",
+      "unit": "forfait",
+      "amount_bleu": 4000,
+      "amount_jaune": 3000,
+      "amount_violet": 2000,
+      "amount_rose": null
+    },
+    {
+      "work_type": "pellet_stove",
+      "label": "Poêle ou cuisinière à granulés",
+      "unit": "forfait",
+      "amount_bleu": 1250,
+      "amount_jaune": 1000,
+      "amount_violet": 750,
+      "amount_rose": null
+    },
+    {
+      "work_type": "wood_stove",
+      "label": "Poêle ou cuisinière à bûches",
+      "unit": "forfait",
+      "amount_bleu": 1250,
+      "amount_jaune": 1000,
+      "amount_violet": 500,
+      "amount_rose": null
+    },
+    {
+      "work_type": "wood_insert",
+      "label": "Foyer fermé / insert à bois",
+      "unit": "forfait",
+      "amount_bleu": 1250,
+      "amount_jaune": 750,
+      "amount_violet": 500,
+      "amount_rose": null
+    },
+    {
+      "work_type": "pvt_thermal",
+      "label": "Partie thermique d'un équipement PVT à eau",
+      "unit": "forfait",
+      "amount_bleu": 2500,
+      "amount_jaune": 2000,
+      "amount_violet": 1000,
+      "amount_rose": null
+    },
+    {
+      "work_type": "thermodynamic_water_heater",
+      "label": "Chauffe-eau thermodynamique",
+      "unit": "forfait",
+      "amount_bleu": 1200,
+      "amount_jaune": 800,
+      "amount_violet": 400,
+      "amount_rose": null
+    },
+    {
+      "work_type": "heat_network_connection",
+      "label": "Raccordement à un réseau de chaleur ou de froid",
+      "unit": "forfait",
+      "amount_bleu": 1200,
+      "amount_jaune": 800,
+      "amount_violet": 400,
+      "amount_rose": null
+    },
+    {
+      "work_type": "oil_tank_removal",
+      "label": "Dépose de cuve à fioul",
+      "unit": "forfait",
+      "amount_bleu": 1200,
+      "amount_jaune": 800,
+      "amount_violet": 400,
+      "amount_rose": null
+    },
+    {
+      "work_type": "energy_audit",
+      "label": "Audit énergétique",
+      "unit": "forfait",
+      "amount_bleu": 500,
+      "amount_jaune": 400,
+      "amount_violet": 300,
+      "amount_rose": null
+    },
+    {
+      "work_type": "double_flow_vmc",
+      "label": "VMC double-flux",
+      "unit": "forfait",
+      "amount_bleu": 2500,
+      "amount_jaune": 2000,
+      "amount_violet": 1500,
+      "amount_rose": null
+    },
+    {
+      "work_type": "window_replacement",
+      "label": "Isolation des fenêtres / parois vitrées",
+      "unit": "per_equipment",
+      "amount_bleu": 100,
+      "amount_jaune": 80,
+      "amount_violet": 40,
+      "amount_rose": null
+    },
+    {
+      "work_type": "roof_terrace_insulation",
+      "label": "Isolation des toitures-terrasses",
+      "unit": "per_m2",
+      "amount_bleu": 75,
+      "amount_jaune": 60,
+      "amount_violet": 40,
+      "amount_rose": null
+    },
+    {
+      "work_type": "roof_rampant_insulation",
+      "label": "Isolation des rampants de toiture / combles aménagés",
+      "unit": "per_m2",
+      "amount_bleu": 25,
+      "amount_jaune": 20,
+      "amount_violet": 15,
+      "amount_rose": null
+    },
+    {
+      "work_type": "solar_radiation_protection",
+      "label": "Protection contre rayonnement solaire (parois opaques, Outre-mer)",
+      "unit": "per_m2",
+      "amount_bleu": 25,
+      "amount_jaune": 20,
+      "amount_violet": 15,
+      "amount_rose": null,
+      "notes": "Réservé aux logements situés en Outre-mer."
+    }
+  ]
+}
