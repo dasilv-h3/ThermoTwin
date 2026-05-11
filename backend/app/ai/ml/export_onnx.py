@@ -1,6 +1,7 @@
 """
 GPTT-77 - Export modèle ONNX pour inférence optimisée
 """
+
 import onnx
 import tensorflow as tf
 import tf2onnx
@@ -16,4 +17,4 @@ def export_to_onnx(model_path: str, output_path: str):
 
 
 if __name__ == "__main__":
-    export_to_onnx('app/ai/ml/thermotwin_model.keras', 'app/ai/ml/thermotwin_model.onnx')
+    export_to_onnx("app/ai/ml/thermotwin_model.keras", "app/ai/ml/thermotwin_model.onnx")
