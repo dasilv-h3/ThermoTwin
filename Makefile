@@ -69,76 +69,76 @@ check-all: fix check backend-test ## Tout-en-un : auto-fix puis verifie (lint + 
 install: install-backend install-frontend install-e2e ## Installe toutes les dependances
 
 install-backend: ensure-venv ## Installe les deps Python du backend + ruff dans $(VENV)
-	$(VENV_PIP) install -r $(BACKEND_DIR)/requirements.txt
-	$(VENV_PIP) install ruff==$(RUFF_VERSION)
+	"$(VENV_PIP)" install -r "$(BACKEND_DIR)/requirements.txt"
+	"$(VENV_PIP)" install ruff==$(RUFF_VERSION)
 
 install-frontend: ## Installe les deps npm du frontend
-	cd $(FRONTEND_DIR) && npm install
+	cd "$(FRONTEND_DIR)" && npm install
 
 install-e2e: ## Installe les deps Playwright
-	cd $(E2E_DIR) && npm install && npx playwright install --with-deps
+	cd "$(E2E_DIR)" && npm install && npx playwright install --with-deps
 
 # ---------------------------------------------------------------------------
 # Garde-fous d'installation (auto-bootstrap si outil manquant)
 # ---------------------------------------------------------------------------
 ensure-venv: ## Cree le venv local $(VENV) si absent
-	@test -x $(VENV_PY) || { \
+	@test -x "$(VENV_PY)" || { \
 		echo "==> Creation du venv $(VENV)..."; \
-		$(PYTHON) -m venv $(VENV); \
-		$(VENV_PIP) install --quiet --upgrade pip; \
+		$(PYTHON) -m venv "$(VENV)"; \
+		"$(VENV_PIP)" install --quiet --upgrade pip; \
 	}
 
 ensure-ruff: ensure-venv ## Installe ruff dans $(VENV) si absent
-	@$(VENV_PY) -m ruff --version >/dev/null 2>&1 || { \
+	@"$(VENV_PY)" -m ruff --version >/dev/null 2>&1 || { \
 		echo "==> Installation de ruff==$(RUFF_VERSION) dans $(VENV)..."; \
-		$(VENV_PIP) install --quiet ruff==$(RUFF_VERSION); \
+		"$(VENV_PIP)" install --quiet ruff==$(RUFF_VERSION); \
 	}
 
 ensure-backend-deps: ensure-venv ## Installe les deps Python si pytest absent du venv
-	@$(VENV_PY) -m pytest --version >/dev/null 2>&1 || { \
+	@"$(VENV_PY)" -m pytest --version >/dev/null 2>&1 || { \
 		echo "==> Installation des deps backend dans $(VENV)..."; \
-		$(VENV_PIP) install -r $(BACKEND_DIR)/requirements.txt; \
+		"$(VENV_PIP)" install -r "$(BACKEND_DIR)/requirements.txt"; \
 	}
 
 ensure-frontend-deps: ## Installe les deps npm du frontend si binaires manquants
 	@if [ ! -x "$(FRONTEND_DIR)/node_modules/.bin/prettier" ] || \
 	    [ ! -x "$(FRONTEND_DIR)/node_modules/.bin/eslint" ]; then \
 		echo "==> Deps frontend incompletes, npm install dans $(FRONTEND_DIR)..."; \
-		cd $(FRONTEND_DIR) && npm install; \
+		cd "$(FRONTEND_DIR)" && npm install; \
 	fi
 
 # ---------------------------------------------------------------------------
 # Backend — lint & format (job "lint" de la CI)
 # ---------------------------------------------------------------------------
 backend-format-check: ensure-ruff ## ruff format --check (CI step)
-	cd $(BACKEND_DIR) && $(VENV_PY) -m ruff format --check .
+	cd "$(BACKEND_DIR)" && "$(VENV_PY)" -m ruff format --check .
 
 backend-lint: ensure-ruff ## ruff check (CI step)
-	cd $(BACKEND_DIR) && $(VENV_PY) -m ruff check .
+	cd "$(BACKEND_DIR)" && "$(VENV_PY)" -m ruff check .
 
 backend-format: ensure-ruff ## ruff format (auto-fix formatting)
-	cd $(BACKEND_DIR) && $(VENV_PY) -m ruff format .
+	cd "$(BACKEND_DIR)" && "$(VENV_PY)" -m ruff format .
 
 backend-fix: backend-format ## ruff format + ruff check --fix
-	cd $(BACKEND_DIR) && $(VENV_PY) -m ruff check --fix .
+	cd "$(BACKEND_DIR)" && "$(VENV_PY)" -m ruff check --fix .
 
 # ---------------------------------------------------------------------------
 # Backend — tests (job "test" de la CI)
 # ---------------------------------------------------------------------------
 backend-test: ensure-backend-deps ## pytest tests/ -v (CI step) — necessite Postgres + Mongo accessibles
-	cd $(BACKEND_DIR) && $(VENV_PY) -m pytest tests/ -v
+	cd "$(BACKEND_DIR)" && "$(VENV_PY)" -m pytest tests/ -v
 
 # ---------------------------------------------------------------------------
 # Frontend — lint & format
 # ---------------------------------------------------------------------------
 frontend-lint: ensure-frontend-deps ## eslint .
-	cd $(FRONTEND_DIR) && npm run lint
+	cd "$(FRONTEND_DIR)" && npm run lint
 
 frontend-lint-fix: ensure-frontend-deps ## eslint . --fix
-	cd $(FRONTEND_DIR) && npm run lint:fix
+	cd "$(FRONTEND_DIR)" && npm run lint:fix
 
 frontend-format: ensure-frontend-deps ## prettier --write
-	cd $(FRONTEND_DIR) && npm run format
+	cd "$(FRONTEND_DIR)" && npm run format
 
 frontend-fix: frontend-format frontend-lint-fix ## prettier + eslint --fix
 
@@ -146,13 +146,13 @@ frontend-fix: frontend-format frontend-lint-fix ## prettier + eslint --fix
 # E2E (Playwright)
 # ---------------------------------------------------------------------------
 e2e-test: ## Lance les tests end-to-end Playwright
-	cd $(E2E_DIR) && npm test
+	cd "$(E2E_DIR)" && npm test
 
 # ---------------------------------------------------------------------------
 # Docker (job "build" de la CI)
 # ---------------------------------------------------------------------------
 docker-build: ## docker build backend/ -t thermotwin-api:local (CI step)
-	docker build $(BACKEND_DIR)/ -t thermotwin-api:local
+	docker build "$(BACKEND_DIR)/" -t thermotwin-api:local
 
 services-up: ## Demarre Postgres + Mongo via docker-compose (pour backend-test)
 	docker compose up -d postgres mongo
@@ -170,5 +170,5 @@ clean: ## Supprime les artefacts (caches, builds)
 	find . -type d -name "__pycache__" -prune -exec rm -rf {} +
 	find . -type d -name ".pytest_cache" -prune -exec rm -rf {} +
 	find . -type d -name ".ruff_cache" -prune -exec rm -rf {} +
-	rm -rf $(FRONTEND_DIR)/node_modules/.cache 2>/dev/null || true
-	rm -rf $(E2E_DIR)/test-results $(E2E_DIR)/playwright-report 2>/dev/null || true
+	rm -rf "$(FRONTEND_DIR)/node_modules/.cache" 2>/dev/null || true
+	rm -rf "$(E2E_DIR)/test-results" "$(E2E_DIR)/playwright-report" 2>/dev/null || true

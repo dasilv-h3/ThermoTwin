@@ -14,9 +14,9 @@ def verify_password(password: str, password_hash: str) -> bool:
     return bcrypt.checkpw(password.encode(), password_hash.encode())
 
 
-def create_access_token(user_id: int) -> str:
+def create_access_token(user_id: str) -> str:
     payload = {
-        "sub": str(user_id),
+        "sub": user_id,
         "type": "access",
         "exp": datetime.now(UTC) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),
         "iat": datetime.now(UTC),
@@ -24,9 +24,9 @@ def create_access_token(user_id: int) -> str:
     return jwt.encode(payload, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
 
 
-def create_refresh_token(user_id: int) -> str:
+def create_refresh_token(user_id: str) -> str:
     payload = {
-        "sub": str(user_id),
+        "sub": user_id,
         "type": "refresh",
         "exp": datetime.now(UTC) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS),
         "iat": datetime.now(UTC),
