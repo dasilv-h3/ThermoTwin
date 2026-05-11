@@ -6,7 +6,7 @@ import { useARSession } from '../ar';
 
 const STATUS_LABELS = {
   idle: 'Prêt',
-  starting: 'Initialisation ARKit…',
+  starting: 'Initialisation…',
   running: 'Session active',
   paused: 'En pause',
   stopped: 'Arrêté',
@@ -14,7 +14,7 @@ const STATUS_LABELS = {
 } as const;
 
 const TRACKING_LABELS = {
-  'not-available': 'LiDAR indisponible',
+  'not-available': 'Tracking indisponible',
   initializing: 'Calibration en cours…',
   limited: 'Tracking limité',
   normal: 'Tracking nominal',
@@ -22,8 +22,16 @@ const TRACKING_LABELS = {
 } as const;
 
 export default function ScanScreen() {
-  const { status, tracking, capability, error, start, stop } = useARSession();
-  const canStart = capability.supported && status !== 'running' && status !== 'starting';
+  const { status, tracking, mode, capability, error, start, stop } = useARSession();
+  const isRunning = status === 'running' || status === 'starting';
+  const modeLabel =
+    mode === 'video-with-lidar'
+      ? 'Vidéo + LiDAR'
+      : mode === 'video'
+        ? 'Vidéo'
+        : capability.supported
+          ? 'Vidéo + LiDAR (prêt)'
+          : 'Vidéo';
 
   useEffect(() => {
     return () => {
@@ -37,6 +45,8 @@ export default function ScanScreen() {
       <Text style={styles.title}>Scanner une pièce</Text>
 
       <View style={styles.statusBlock}>
+        <Text style={styles.statusLabel}>Mode capture</Text>
+        <Text style={styles.statusValue}>{modeLabel}</Text>
         <Text style={styles.statusLabel}>Session</Text>
         <Text style={styles.statusValue}>{STATUS_LABELS[status]}</Text>
         <Text style={styles.statusLabel}>Tracking</Text>
@@ -44,24 +54,27 @@ export default function ScanScreen() {
       </View>
 
       {!capability.supported ? (
-        <Text style={styles.warning}>
-          Capteur LiDAR requis (iPhone 12 Pro ou supérieur).
-          {capability.deviceModel ? ` Détecté : ${capability.deviceModel}.` : ''}
+        <Text style={styles.hint}>
+          Capteur LiDAR non détecté : scan vidéo uniquement (précision réduite).
         </Text>
-      ) : null}
+      ) : (
+        <Text style={styles.hint}>
+          LiDAR disponible : le scan vidéo sera enrichi par la profondeur.
+        </Text>
+      )}
 
       {error ? <Text style={styles.error}>{error.message}</Text> : null}
 
       <Pressable
         accessibilityRole="button"
-        style={[styles.button, !canStart && styles.buttonDisabled]}
-        disabled={!canStart}
+        style={[styles.button, isRunning && styles.buttonDisabled]}
+        disabled={isRunning}
         onPress={() => {
           start().catch(() => {});
         }}
       >
         <Text style={styles.buttonText}>
-          {status === 'starting' ? 'Démarrage…' : 'Démarrer le scan LiDAR'}
+          {status === 'starting' ? 'Démarrage…' : 'Démarrer le scan'}
         </Text>
       </Pressable>
     </View>
@@ -91,7 +104,7 @@ const styles = StyleSheet.create({
   },
   statusLabel: { color: '#9bbcf0', fontSize: 12 },
   statusValue: { color: '#ffffff', fontSize: 15, fontWeight: '600', marginBottom: 6 },
-  warning: { color: '#f5c518', fontSize: 13, textAlign: 'center' },
+  hint: { color: '#9bbcf0', fontSize: 13, textAlign: 'center' },
   error: { color: '#ff6b6b', fontSize: 13, textAlign: 'center' },
   button: {
     backgroundColor: '#00d4ff',

@@ -1,24 +1,30 @@
 import { getLidarCapability } from './lidarCapability';
 import {
+  ARCaptureMode,
   ARSessionConfig,
   ARSessionError,
   ARSessionEvent,
   ARSessionListener,
   ARSessionStatus,
-  DEFAULT_LIDAR_CONFIG,
+  DEFAULT_AR_CONFIG,
 } from './types';
 
 export class ARSession {
   private status: ARSessionStatus = 'idle';
+  private mode: ARCaptureMode | null = null;
   private listeners = new Set<ARSessionListener>();
   private readonly config: ARSessionConfig;
 
   constructor(config: Partial<ARSessionConfig> = {}) {
-    this.config = { ...DEFAULT_LIDAR_CONFIG, ...config };
+    this.config = { ...DEFAULT_AR_CONFIG, ...config };
   }
 
   getStatus(): ARSessionStatus {
     return this.status;
+  }
+
+  getMode(): ARCaptureMode | null {
+    return this.mode;
   }
 
   getConfig(): ARSessionConfig {
@@ -35,30 +41,18 @@ export class ARSession {
       return;
     }
 
-    const capability = getLidarCapability();
-    if (!capability.supported) {
-      const error: ARSessionError = {
-        code: capability.reason === 'platform' ? 'unsupported-platform' : 'no-lidar',
-        message:
-          capability.reason === 'platform'
-            ? "LiDAR n'est disponible que sur iOS"
-            : `Capteur LiDAR indisponible (model: ${capability.deviceModel ?? 'inconnu'})`,
-      };
-      this.setStatus('error');
-      this.emit({ type: 'error', error });
-      throw error;
-    }
-
+    const mode = this.resolveMode();
     this.setStatus('starting');
+    this.setMode(mode);
 
     try {
-      await this.initNativeSession();
+      await this.initNativeSession(mode);
       this.setStatus('running');
       this.emit({ type: 'tracking', state: 'initializing' });
     } catch (cause) {
       const error: ARSessionError = {
         code: 'native-error',
-        message: cause instanceof Error ? cause.message : 'Erreur native ARKit',
+        message: cause instanceof Error ? cause.message : 'Erreur native capture',
       };
       this.setStatus('error');
       this.emit({ type: 'error', error });
@@ -81,6 +75,21 @@ export class ARSession {
     this.listeners.clear();
   }
 
+  // Vidéo = mode socle. LiDAR vient en surcouche quand le device le supporte
+  // ou que l'appelant l'a explicitement demandé. Si demandé mais indisponible,
+  // on log et on retombe en vidéo plutôt que d'échouer — l'utilisateur doit
+  // pouvoir scanner même sans capteur.
+  private resolveMode(): ARCaptureMode {
+    if (this.config.modePreference === 'video') {
+      return 'video';
+    }
+    const lidar = getLidarCapability();
+    if (this.config.modePreference === 'video-with-lidar' && !lidar.supported) {
+      return 'video';
+    }
+    return lidar.supported ? 'video-with-lidar' : 'video';
+  }
+
   private setStatus(status: ARSessionStatus): void {
     if (this.status === status) {
       return;
@@ -89,16 +98,25 @@ export class ARSession {
     this.emit({ type: 'status', status });
   }
 
+  private setMode(mode: ARCaptureMode): void {
+    if (this.mode === mode) {
+      return;
+    }
+    this.mode = mode;
+    this.emit({ type: 'mode', mode });
+  }
+
   private emit(event: ARSessionEvent): void {
     for (const listener of this.listeners) {
       listener(event);
     }
   }
 
-  // Hook natif ARWorldTrackingConfiguration. Sera branché par GPTT-25 via
-  // un module Expo natif. Pour l'instant on simule un init asynchrone afin
-  // que la machine à états reste exerçable côté JS/tests.
-  private async initNativeSession(): Promise<void> {
+  // Pont natif : ARWorldTrackingConfiguration en mode LiDAR (iOS Pro), ou
+  // capture vidéo simple sinon. Stub asynchrone pour l'instant, branché par
+  // GPTT-25 (point cloud) et GPTT-31 (depth ARCore).
+  private async initNativeSession(mode: ARCaptureMode): Promise<void> {
+    void mode;
     await new Promise((resolve) => setTimeout(resolve, 100));
   }
 }
