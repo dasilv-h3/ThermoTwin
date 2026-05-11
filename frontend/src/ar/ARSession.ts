@@ -76,7 +76,9 @@ export class ARSession {
       return;
     }
     this.setStatus('stopped');
-    this.listeners.clear();
+    // Ne pas vider les listeners : ils gèrent leur propre subscribe/unsubscribe
+    // via la fonction renvoyée par on(). Vider ici casserait la réception
+    // d'évènements après un restart.
   }
 
   // Vidéo = mode socle. LiDAR vient en surcouche quand le device le supporte

@@ -1,5 +1,4 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useEffect } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { useARSession } from '../ar';
@@ -33,12 +32,6 @@ export default function ScanScreen() {
         : capability.supported
           ? 'Vidéo + LiDAR (prêt)'
           : 'Vidéo';
-
-  useEffect(() => {
-    return () => {
-      stop().catch(() => {});
-    };
-  }, [stop]);
 
   return (
     <View style={styles.container}>

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { ARSession } from './ARSession';
 import { getLidarCapability, LidarCapability } from './lidarCapability';
@@ -50,13 +50,19 @@ export function useARSession(config?: Partial<ARSessionConfig>): UseARSessionRes
     };
   }, [session]);
 
+  // Refs stables : sinon chaque render recrée start/stop, et tout useEffect
+  // consommateur qui dépend de stop relance son cleanup → stoppe la session
+  // juste après le démarrage.
+  const start = useCallback(() => session.start(), [session]);
+  const stop = useCallback(() => session.stop(), [session]);
+
   return {
     status,
     tracking,
     mode,
     capability,
     error,
-    start: () => session.start(),
-    stop: () => session.stop(),
+    start,
+    stop,
   };
 }
