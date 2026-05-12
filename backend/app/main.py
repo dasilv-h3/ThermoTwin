@@ -9,6 +9,7 @@ from app.api.routes.auth import router as auth_router
 from app.api.routes.credits import router as credits_router
 from app.api.routes.health import router as health_router
 from app.api.routes.mpr import router as mpr_router
+from app.api.routes.reports import router as reports_router
 from app.api.routes.scans import router as scans_router
 from app.core.config import settings
 from app.core.logging import setup_logging
@@ -52,3 +53,4 @@ app.include_router(artisans_router, prefix=settings.API_PREFIX)
 app.include_router(mpr_router, prefix=settings.API_PREFIX)
 app.include_router(scans_router, prefix=settings.API_PREFIX)
 app.include_router(credits_router, prefix=settings.API_PREFIX)
+app.include_router(reports_router, prefix=settings.API_PREFIX)
