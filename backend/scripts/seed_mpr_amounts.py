@@ -67,9 +67,7 @@ def parse_amount(year: int, source_url: str, item: dict[str, Any]) -> MprAmount 
         return None
 
 
-def parse_threshold(
-    year: int, zone: GeoZone, source_url: str, row: dict[str, Any]
-) -> MprIncomeThreshold | None:
+def parse_threshold(year: int, zone: GeoZone, source_url: str, row: dict[str, Any]) -> MprIncomeThreshold | None:
     try:
         return MprIncomeThreshold(
             year=year,
@@ -123,11 +121,7 @@ async def upsert_thresholds(rows: list[MprIncomeThreshold], dry_run: bool) -> tu
             existing.add((t.year, t.zone.value, t.household_size, t.is_additional_person))
         logger.info("Found %d existing income-threshold rows in DB", len(existing))
 
-    to_insert = [
-        r
-        for r in rows
-        if (r.year, r.zone.value, r.household_size, r.is_additional_person) not in existing
-    ]
+    to_insert = [r for r in rows if (r.year, r.zone.value, r.household_size, r.is_additional_person) not in existing]
     skipped = len(rows) - len(to_insert)
 
     if dry_run:
