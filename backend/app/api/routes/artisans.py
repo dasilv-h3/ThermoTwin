@@ -7,6 +7,7 @@ from app.api.deps import get_current_user
 from app.models.artisan import Artisan, Specialty
 from app.models.user import User
 from app.schemas.artisan import ArtisanListResponse, ArtisanResponse, CertificationResponse
+from app.services.geo import haversine_km
 
 router = APIRouter(prefix="/artisans", tags=["Artisans"])
 
@@ -67,6 +68,47 @@ async def list_artisans(
     artisans = await cursor.to_list()
 
     items = [_serialize(a) for a in artisans]
+    return ArtisanListResponse(items=items, total=len(items))
+
+
+@router.get("/nearby", response_model=ArtisanListResponse)
+async def nearby_artisans(
+    _user: Annotated[User, Depends(get_current_user)],
+    lat: float = Query(..., ge=-90, le=90, description="Latitude (WGS84)"),
+    lng: float = Query(..., ge=-180, le=180, description="Longitude (WGS84)"),
+    limit: int = Query(10, ge=1, le=20, description="Number of artisans to return"),
+    specialty: Specialty | None = Query(None, description="Optional specialty filter"),
+):
+    """Return the N closest active RGE artisans to a given point.
+
+    Reusable across the scan history detail view (GPTT-252) and the PDF
+    report (GPTT-254). MongoDB's `$near` already sorts by distance ; we
+    additionally compute and expose `distance_km` per item so the caller
+    can render it without re-fetching coordinates.
+    """
+    query: dict = {
+        "is_active": True,
+        "location": {
+            "$near": {
+                "$geometry": {"type": "Point", "coordinates": [lng, lat]},
+                # No $maxDistance: the goal is "N closest", any distance.
+            }
+        },
+    }
+    if specialty:
+        query["specialties"] = specialty
+
+    artisans = await Artisan.find(query).limit(limit).to_list()
+    items = [
+        _serialize(
+            a,
+            distance_km=round(
+                haversine_km(lat, lng, a.location.coordinates[1], a.location.coordinates[0]),
+                2,
+            ),
+        )
+        for a in artisans
+    ]
     return ArtisanListResponse(items=items, total=len(items))
 
 
