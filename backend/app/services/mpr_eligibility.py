@@ -82,9 +82,7 @@ async def compute_thresholds(year: int, zone: GeoZone, household_size: int) -> T
         return None
 
     if household_size <= 5:
-        return Thresholds(
-            bleu_max=base.bleu_max, jaune_max=base.jaune_max, violet_max=base.violet_max
-        )
+        return Thresholds(bleu_max=base.bleu_max, jaune_max=base.jaune_max, violet_max=base.violet_max)
 
     extra = await MprIncomeThreshold.find_one(
         MprIncomeThreshold.year == year,
@@ -92,9 +90,7 @@ async def compute_thresholds(year: int, zone: GeoZone, household_size: int) -> T
         MprIncomeThreshold.is_additional_person == True,  # noqa: E712
     )
     if extra is None:
-        return Thresholds(
-            bleu_max=base.bleu_max, jaune_max=base.jaune_max, violet_max=base.violet_max
-        )
+        return Thresholds(bleu_max=base.bleu_max, jaune_max=base.jaune_max, violet_max=base.violet_max)
 
     n = household_size - 5
     return Thresholds(
