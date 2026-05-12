@@ -1,13 +1,17 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { useARSession } from '../ar';
+import { RootStackParamList } from '../navigation/RootNavigator';
 import {
   ScanSessionFinalize,
   finalizeScanSession,
   startScanSession,
 } from '../services/scanService';
+import { useAppSelector } from '../store/hooks';
 
 const STATUS_LABELS = {
   idle: 'Prêt',
@@ -39,10 +43,21 @@ const FINALIZE_REASON_LABELS = {
 // quand la capture native sera branchée.
 const SYNTHETIC_FRAME_INTERVAL_MS = 100;
 
+type Nav = NativeStackNavigationProp<RootStackParamList>;
+
 export default function ScanScreen() {
   const { status, tracking, mode, capability, error, start, stop } = useARSession();
+  const subscription = useAppSelector((s) => s.auth.user?.subscription);
+  const navigation = useNavigation<Nav>();
+
   const isStarting = status === 'starting';
   const isRunning = status === 'running';
+  // Bloquant : quota plein → bouton "Démarrer" inactif, CTA achat à la place.
+  // La règle est miroir du backend (services/scan_credit.py).
+  const outOfCredits =
+    subscription !== undefined && subscription !== null
+      ? subscription.scans_used >= subscription.scans_limit
+      : false;
 
   const [scanId, setScanId] = useState<string | null>(null);
   const [frameCount, setFrameCount] = useState(0);
@@ -114,6 +129,14 @@ export default function ScanScreen() {
         <Text style={styles.statusValue}>{STATUS_LABELS[status]}</Text>
         <Text style={styles.statusLabel}>Tracking</Text>
         <Text style={styles.statusValue}>{TRACKING_LABELS[tracking]}</Text>
+        {subscription ? (
+          <>
+            <Text style={styles.statusLabel}>Solde</Text>
+            <Text style={styles.statusValue}>
+              {subscription.scans_used} / {subscription.scans_limit}
+            </Text>
+          </>
+        ) : null}
         {isRunning ? (
           <>
             <Text style={styles.statusLabel}>Frames captées</Text>
@@ -150,26 +173,39 @@ export default function ScanScreen() {
         </View>
       ) : null}
 
-      <Pressable
-        accessibilityRole="button"
-        style={[styles.button, (isStarting || finalizing) && styles.buttonDisabled]}
-        disabled={isStarting || finalizing}
-        onPress={() => {
-          if (isRunning) {
-            void handleStop();
-          } else {
-            void handleStart();
-          }
-        }}
-      >
-        {finalizing ? (
-          <ActivityIndicator color="#0b1220" />
-        ) : (
-          <Text style={styles.buttonText}>
-            {isStarting ? 'Démarrage…' : isRunning ? 'Arrêter le scan' : 'Démarrer le scan'}
-          </Text>
-        )}
-      </Pressable>
+      {outOfCredits && !isRunning ? (
+        <View style={styles.outOfCreditsBlock}>
+          <Text style={styles.outOfCreditsText}>Plus de crédits — recharger pour scanner</Text>
+          <Pressable
+            accessibilityRole="button"
+            style={styles.buyCta}
+            onPress={() => navigation.navigate('BuyCredits')}
+          >
+            <Text style={styles.buyCtaText}>Acheter des crédits</Text>
+          </Pressable>
+        </View>
+      ) : (
+        <Pressable
+          accessibilityRole="button"
+          style={[styles.button, (isStarting || finalizing) && styles.buttonDisabled]}
+          disabled={isStarting || finalizing}
+          onPress={() => {
+            if (isRunning) {
+              void handleStop();
+            } else {
+              void handleStart();
+            }
+          }}
+        >
+          {finalizing ? (
+            <ActivityIndicator color="#0b1220" />
+          ) : (
+            <Text style={styles.buttonText}>
+              {isStarting ? 'Démarrage…' : isRunning ? 'Arrêter le scan' : 'Démarrer le scan'}
+            </Text>
+          )}
+        </Pressable>
+      )}
     </View>
   );
 }
@@ -206,6 +242,22 @@ const styles = StyleSheet.create({
   resultOk: { color: '#7ee29a' },
   resultNeutral: { color: '#9bbcf0' },
   resultBalance: { color: '#ffffff', fontSize: 12, textAlign: 'center' },
+  outOfCreditsBlock: {
+    backgroundColor: '#3a1a1a',
+    padding: 16,
+    borderRadius: 10,
+    width: '100%',
+    gap: 12,
+    alignItems: 'center',
+  },
+  outOfCreditsText: { color: '#ffb1ab', fontSize: 14, textAlign: 'center', fontWeight: '600' },
+  buyCta: {
+    backgroundColor: '#ffd400',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 999,
+  },
+  buyCtaText: { color: '#0b1220', fontSize: 14, fontWeight: '700' },
   button: {
     backgroundColor: '#00d4ff',
     paddingVertical: 14,
