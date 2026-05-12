@@ -26,14 +26,8 @@ def analyze_thermal_image(image_path: str) -> dict:
             {
                 "role": "user",
                 "content": [
-                    {
-                        "type": "image_url",
-                        "image_url": {"url": f"data:image/jpeg;base64,{image_base64}"}
-                    },
-                    {
-                        "type": "text",
-                        "text": THERMAL_ANALYSIS_PROMPT
-                    },
+                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{image_base64}"}},
+                    {"type": "text", "text": THERMAL_ANALYSIS_PROMPT},
                 ],
             }
         ],
@@ -46,7 +40,7 @@ def analyze_thermal_image(image_path: str) -> dict:
     if not result.get("valid", True):
         return {
             "valid": False,
-            "message": result.get("message", "Veuillez photographier une pièce éclairée de votre logement.")
+            "message": result.get("message", "Veuillez photographier une pièce éclairée de votre logement."),
         }
 
     return result

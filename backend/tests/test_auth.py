@@ -1,13 +1,36 @@
 """Tests for auth endpoints: register, login, refresh, me."""
 
+from datetime import UTC, datetime
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from beanie import PydanticObjectId
 
 from app.core.security import create_access_token, create_refresh_token, hash_password
+from app.models.user import NotificationPreferences, Subscription, SubscriptionTier
 
 USER_ID = "507f1f77bcf86cd799439011"
+
+
+def _make_fake_user(**overrides):
+    """Mock User avec subscription et notification_preferences valides
+    (sinon SubscriptionResponse rejette les MagicMock sur le champ enum 'tier')."""
+    defaults = {
+        "id": PydanticObjectId(USER_ID),
+        "email": "user@test.com",
+        "first_name": "John",
+        "last_name": "Doe",
+        "subscription": Subscription(
+            tier=SubscriptionTier.FREE,
+            scans_used=0,
+            scans_limit=5,
+            started_at=datetime.now(UTC),
+            expires_at=None,
+        ),
+        "notification_preferences": NotificationPreferences(),
+    }
+    defaults.update(overrides)
+    return MagicMock(**defaults)
 
 
 # ---------------------------------------------------------------------------
@@ -231,12 +254,7 @@ async def test_refresh_with_expired_token(client):
 
 @pytest.mark.anyio
 async def test_me_success(client):
-    fake_user = MagicMock(
-        id=PydanticObjectId(USER_ID),
-        email="user@test.com",
-        first_name="John",
-        last_name="Doe",
-    )
+    fake_user = _make_fake_user()
 
     with patch("app.api.deps.User.get", new=AsyncMock(return_value=fake_user)):
         token = create_access_token(user_id=USER_ID)
