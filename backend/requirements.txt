@@ -24,3 +24,6 @@ ruff==0.11.4
 # IA
 groq
 google-generativeai
+
+# PDF generation (GPTT-254)
+reportlab==4.2.5
