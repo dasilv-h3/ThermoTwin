@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.middleware import RequestLoggingMiddleware
 from app.api.routes.artisans import router as artisans_router
 from app.api.routes.auth import router as auth_router
+from app.api.routes.credits import router as credits_router
 from app.api.routes.health import router as health_router
 from app.api.routes.mpr import router as mpr_router
 from app.api.routes.scans import router as scans_router
@@ -50,3 +51,4 @@ app.include_router(auth_router, prefix=settings.API_PREFIX)
 app.include_router(artisans_router, prefix=settings.API_PREFIX)
 app.include_router(mpr_router, prefix=settings.API_PREFIX)
 app.include_router(scans_router, prefix=settings.API_PREFIX)
+app.include_router(credits_router, prefix=settings.API_PREFIX)

@@ -1,6 +1,7 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import ArtisanDetailScreen from '../screens/ArtisanDetailScreen';
 import ArtisansListScreen from '../screens/ArtisansListScreen';
+import BuyCreditsScreen from '../screens/BuyCreditsScreen';
 import ChangePasswordScreen from '../screens/ChangePasswordScreen';
 import ConfidentialityScreen from '../screens/ConfidentialityScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
@@ -22,6 +23,7 @@ export type RootStackParamList = {
   ArtisansList: undefined;
   ArtisanDetail: { id: string };
   MprAid: undefined;
+  BuyCredits: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -40,6 +42,7 @@ export default function RootNavigator() {
           <Stack.Screen name="ArtisansList" component={ArtisansListScreen} />
           <Stack.Screen name="ArtisanDetail" component={ArtisanDetailScreen} />
           <Stack.Screen name="MprAid" component={MprAidScreen} />
+          <Stack.Screen name="BuyCredits" component={BuyCreditsScreen} />
         </>
       ) : (
         <>
