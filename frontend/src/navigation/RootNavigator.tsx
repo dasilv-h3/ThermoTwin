@@ -5,9 +5,11 @@ import BuyCreditsScreen from '../screens/BuyCreditsScreen';
 import ChangePasswordScreen from '../screens/ChangePasswordScreen';
 import ConfidentialityScreen from '../screens/ConfidentialityScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
+import HistoryScreen from '../screens/HistoryScreen';
 import LoginScreen from '../screens/LoginScreen';
 import MprAidScreen from '../screens/MprAidScreen';
 import RegisterScreen from '../screens/RegisterScreen';
+import ScanDetailScreen from '../screens/ScanDetailScreen';
 import WelcomeScreen from '../screens/WelcomeScreen';
 import { useAppSelector } from '../store/hooks';
 import TabNavigator from './TabNavigator';
@@ -24,6 +26,8 @@ export type RootStackParamList = {
   ArtisanDetail: { id: string };
   MprAid: undefined;
   BuyCredits: undefined;
+  History: undefined;
+  ScanDetail: { id: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -43,6 +47,8 @@ export default function RootNavigator() {
           <Stack.Screen name="ArtisanDetail" component={ArtisanDetailScreen} />
           <Stack.Screen name="MprAid" component={MprAidScreen} />
           <Stack.Screen name="BuyCredits" component={BuyCreditsScreen} />
+          <Stack.Screen name="History" component={HistoryScreen} />
+          <Stack.Screen name="ScanDetail" component={ScanDetailScreen} />
         </>
       ) : (
         <>
