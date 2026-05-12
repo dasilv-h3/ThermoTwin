@@ -60,3 +60,9 @@ node_modules/
 
 # Claude
 .claude/
+
+# Local scratch
+.tmp/
+
+# Scraper outputs (regenerated from seed JSON via scripts/scrape_mpr_bareme.py)
+backend/data/mpr_dataset_*.json

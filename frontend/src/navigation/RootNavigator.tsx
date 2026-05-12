@@ -1,0 +1,62 @@
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import ArtisanDetailScreen from '../screens/ArtisanDetailScreen';
+import ArtisansListScreen from '../screens/ArtisansListScreen';
+import BuyCreditsScreen from '../screens/BuyCreditsScreen';
+import ChangePasswordScreen from '../screens/ChangePasswordScreen';
+import ConfidentialityScreen from '../screens/ConfidentialityScreen';
+import EditProfileScreen from '../screens/EditProfileScreen';
+import HistoryScreen from '../screens/HistoryScreen';
+import LoginScreen from '../screens/LoginScreen';
+import MprAidScreen from '../screens/MprAidScreen';
+import RegisterScreen from '../screens/RegisterScreen';
+import ScanDetailScreen from '../screens/ScanDetailScreen';
+import WelcomeScreen from '../screens/WelcomeScreen';
+import { useAppSelector } from '../store/hooks';
+import TabNavigator from './TabNavigator';
+
+export type RootStackParamList = {
+  Welcome: undefined;
+  Login: undefined;
+  Register: undefined;
+  Main: undefined;
+  EditProfile: undefined;
+  ChangePassword: undefined;
+  Confidentiality: undefined;
+  ArtisansList: undefined;
+  ArtisanDetail: { id: string };
+  MprAid: undefined;
+  BuyCredits: undefined;
+  History: undefined;
+  ScanDetail: { id: string };
+};
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
+
+export default function RootNavigator() {
+  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
+
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      {isAuthenticated ? (
+        <>
+          <Stack.Screen name="Main" component={TabNavigator} />
+          <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+          <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} />
+          <Stack.Screen name="Confidentiality" component={ConfidentialityScreen} />
+          <Stack.Screen name="ArtisansList" component={ArtisansListScreen} />
+          <Stack.Screen name="ArtisanDetail" component={ArtisanDetailScreen} />
+          <Stack.Screen name="MprAid" component={MprAidScreen} />
+          <Stack.Screen name="BuyCredits" component={BuyCreditsScreen} />
+          <Stack.Screen name="History" component={HistoryScreen} />
+          <Stack.Screen name="ScanDetail" component={ScanDetailScreen} />
+        </>
+      ) : (
+        <>
+          <Stack.Screen name="Welcome" component={WelcomeScreen} />
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Register" component={RegisterScreen} />
+        </>
+      )}
+    </Stack.Navigator>
+  );
+}

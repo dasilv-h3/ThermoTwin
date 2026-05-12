@@ -3,10 +3,22 @@ name: Backend CI
 on:
   push:
     branches: [main, develop]
-    paths: [backend/**]
+    paths:
+      - backend/**
+      - .github/workflows/backend-ci.yml
   pull_request:
     branches: [main, develop]
-    paths: [backend/**]
+    paths:
+      - backend/**
+      - .github/workflows/backend-ci.yml
+
+# Annule les runs précédents sur la même branche si on push à nouveau.
+concurrency:
+  group: backend-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.13"
 
 jobs:
   lint:
@@ -20,7 +32,9 @@ jobs:
 
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.14"
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
 
       - name: Install ruff
         run: pip install ruff==0.11.4
@@ -40,20 +54,6 @@ jobs:
         working-directory: backend
 
     services:
-      postgres:
-        image: postgres:16-alpine
-        env:
-          POSTGRES_USER: thermotwin
-          POSTGRES_PASSWORD: thermotwin
-          POSTGRES_DB: thermotwin
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
       mongo:
         image: mongo:7.0
         env:
@@ -61,11 +61,15 @@ jobs:
           MONGO_INITDB_ROOT_PASSWORD: thermotwin
         ports:
           - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.adminCommand({ping:1})'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     env:
       MONGO_URL: mongodb://root:thermotwin@localhost:27017/?authSource=admin
       MONGO_DB_NAME: thermotwin
-      POSTGRES_URL: postgresql+psycopg://thermotwin:thermotwin@localhost:5432/thermotwin
       JWT_SECRET: ci-test-secret
       DEBUG: false
 
@@ -74,13 +78,17 @@ jobs:
 
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.14"
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
 
       - name: Run tests
-        run: pytest tests/ -v
+        run: pytest tests/ -v --tb=short
 
   build:
     name: Docker Build
@@ -89,5 +97,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Build sans push, avec cache GitHub Actions pour accélérer.
       - name: Build Docker image
-        run: docker build backend/ -t thermotwin-api:${{ github.sha }}
+        uses: docker/build-push-action@v6
+        with:
+          context: backend
+          push: false
+          tags: thermotwin-api:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
